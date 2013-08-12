@@ -1,0 +1,17 @@
+syntax: regexp
+\.pyc$
+\.hgignore~
+\.gitignore~
+\.git
+\.git
+
+^example/db/
+^example/tmp/
+^example/static/
+^builddocs/
+^builddocs.zip
+^build/
+^dist/
+^src/starbase\.egg-info
+local_settings\.py
+MANIFEST\.in~
