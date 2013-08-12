@@ -114,7 +114,7 @@ Insert data into a single row
 
 Fetch a single row with all columns
 -----------------------------------------
->>> data = t.fetch('my-key-1')
+>>> t.fetch('my-key-1')
 {
     'message': {'subject': 'Hello', 'body': 'Hi John. How are things going?',
                 'private': '1'},
@@ -124,7 +124,7 @@ Fetch a single row with all columns
 
 Fetch a single row with selected columns
 -----------------------------------------
->>> data = t.fetch('my-key-1', ['message', 'stats'])
+>>> t.fetch('my-key-1', ['message', 'stats'])
 {
     'message': {'subject': 'Hello', 'body': 'Hi John. How are things going?',
                 'private': '1'},
@@ -133,7 +133,7 @@ Fetch a single row with selected columns
 
 Narrow the result set even more
 -----------------------------------------
->>> data = t.fetch('my-key-1', {'message': ['subject', 'body'], 'stats': ['status']})
+>>> t.fetch('my-key-1', {'message': ['subject', 'body'], 'stats': ['status']})
 {
     'message': {'subject': 'Hello', 'body': 'Hi John. How are things going?'},
     'stats': {'status': 'sent'}
