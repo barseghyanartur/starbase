@@ -59,7 +59,7 @@ Installation
 =========================================
 Install latest stable version from PyPi
 
-    $pip install starbase
+    $ pip install starbase
 
 Usage examples
 =========================================
