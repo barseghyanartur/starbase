@@ -87,27 +87,26 @@ Create a new table
 -----------------------------------------
 Create a table instance (note, that at this step no table is created).
 
->>> t = c.table('messages')
+>>> t = c.table('table3')
 
-Create a table with columns (``message``, ``users``, ``stats``).
+Create a table with columns (``column1``, ``column2``, ``column3``).
 
->>> t.create('message', 'users', 'stats')
+>>> t.create('column1', 'column2', 'column3')
 200
 
 Show table columns
 -----------------------------------------
 >>> t.columns()
-['message', 'users', 'stats']
+['column1', 'column2', 'column3']
 
 Insert data into a single row
 -----------------------------------------
 >>> t.insert(
 >>>     'my-key-1',
 >>>     {
->>>         'message': {'subject': 'Hello', 'body': 'Hi John. How are things going?',
->>>                     'private': '1'},
->>>         'users': {'sender_id': '1111', 'recipient_id': '2222'},
->>>         'stats': {'status': 'sent', 'read': '1'}
+>>>         'column1': {'key11': 'value 11', 'key12': 'value 12', 'key13': 'value 13'},
+>>>         'column2': {'key21': 'value 21', 'key22': 'value 22'},
+>>>         'column3': {'key32': 'value 31', 'key32': 'value 32'}
 >>>     }
 >>> )
 200
@@ -116,53 +115,51 @@ Fetch a single row with all columns
 -----------------------------------------
 >>> t.fetch('my-key-1')
 {
-    'message': {'subject': 'Hello', 'body': 'Hi John. How are things going?',
-                'private': '1'},
-    'users': {'sender_id': '1111', 'recipient_id': '2222'},
-    'stats': {'status': 'sent', 'read': '1'}
+    'column1': {'key11': 'value 11', 'key12': 'value 12', 'key13': 'value 13'},
+    'column2': {'key21': 'value 21', 'key22': 'value 22'},
+    'column3': {'key32': 'value 31', 'key32': 'value 32'}
 }
 
 Fetch a single row with selected columns
 -----------------------------------------
->>> t.fetch('my-key-1', ['message', 'stats'])
+>>> t.fetch('my-key-1', ['column1', 'column2'])
 {
-    'message': {'subject': 'Hello', 'body': 'Hi John. How are things going?',
-                'private': '1'},
-    'stats': {'status': 'sent', 'read': '1'}
+    'column1': {'key11': 'value 11', 'key12': 'value 12', 'key13': 'value 13'},
+    'column2': {'key21': 'value 21', 'key22': 'value 22'},
 }
 
 Narrow the result set even more
 -----------------------------------------
->>> t.fetch('my-key-1', {'message': ['subject', 'body'], 'stats': ['status']})
+>>> t.fetch('my-key-1', {'column1': ['key11', 'key13'], 'column3': ['key32']})
 {
-    'message': {'subject': 'Hello', 'body': 'Hi John. How are things going?'},
-    'stats': {'status': 'sent'}
+    'column1': {'key11': 'value 11', 'key13': 'value 13'},
+    'column3': {'key32': 'value 32'}
 }
 
 Add columns to the table
 -----------------------------------------
-Add columns given (``groups``, ``events``).
+Add columns given (``column4``, ``column5``).
 
->>> t.add_columns('groups', 'events')
+>>> t.add_columns('column4', 'column5')
 
 Update row data
 -----------------------------------------
 >>> t.update(
 >>>     'my-key-1',
->>>     {'events': {'title': 'Birthday party!', 'date': '2013-08-13T14:45:01'}}
+>>>     {'column4': {'key41': 'value 41', 'key42': 'value 42'}}
 >>> )
 
 Drop columns from table
 -----------------------------------------
-Drop columns given (``groups``, ``stats``).
+Drop columns given (``column4``, ``column5``).
 
->>> t.drop_columns('groups', 'stats')
+>>> t.drop_columns('column4', 'column5')
 
 Batch insert
 -----------------------------------------
 >>> data = {
->>>     'message': {'subject': 'Lorem', 'body': 'Lorem ipsum dolor sit amet'},
->>>     'stats': {'status': 'sent'}
+>>>     'column1': {'key11': 'value 11', 'key12': 'value 12', 'key13': 'value 13'},
+>>>     'column2': {'key21': 'value 21', 'key22': 'value 22'},
 >>> }
 >>> b = t.batch()
 >>> for i in range(0, 5000):
@@ -172,7 +169,7 @@ Batch insert
 Batch update
 -----------------------------------------
 >>> data = {
->>>     'users': {'sender_id': '1111', 'recipient_id': '2222'},
+>>>     'column3': {'key31': 'value 31', 'key32': 'value 32'},
 >>> }
 >>> b = t.batch()
 >>> for i in range(0, 5000):
