@@ -220,7 +220,7 @@ Show table schema
 
 Print table metadata
 -----------------------------------------
->>> print table.regions() # Alias of `table.regions`
+>>> print table.regions()
 
 License
 ===================================
