@@ -72,7 +72,7 @@ Required imports
 
 Create a connection instance
 -----------------------------------------
-Defaults to 127.0.0.1:8000. Specify when creating a connection instance if your defaults are different.
+Defaults to 127.0.0.1:8000. Specify when creating a connection instance if your settings are different.
 
 >>> c = Connection()
 
@@ -85,14 +85,16 @@ Assuming that we have two tables named ``table1`` and ``table2``, we'll see the 
 
 Create a new table
 -----------------------------------------
-Create a table instance (note, that at this step no table is created).
+Create a table instance (note, that at this step no table is created). If you need to operate with
+table data, you need to create a table instance.
 
 >>> t = c.table('table3')
 
-Create a table with columns (``column1``, ``column2``, ``column3``).
+Create a table with columns ``column1``, ``column2``, ``column3`` (this is the point where the
+table is actually created).
 
 >>> t.create('column1', 'column2', 'column3')
-200
+201
 
 Show table columns
 -----------------------------------------
@@ -110,6 +112,19 @@ Insert data into a single row
 >>>     }
 >>> )
 200
+
+Note, that you may also use the `native` way of naming the columns and cells (qualifiers).
+
+>>> t.insert(
+>>>     'my-key-1a',
+>>>     {
+>>>         'column1:key11': 'value 11', 'column1:key12': 'value 12', 'column1:key13': 'value 13',
+>>>         'column2:key21': 'value 21', 'column2:key22': 'value 22',
+>>>         'column3:key32': 'value 31', 'column3:key32': 'value 32'
+>>>     }
+>>> )
+200
+
 
 Fetch a single row with all columns
 -----------------------------------------
@@ -136,11 +151,28 @@ Narrow the result set even more
     'column3': {'key32': 'value 32'}
 }
 
+Note, that you may also use the `native` way of naming the columns and cells (qualifiers).
+
+>>>  t.fetch('my-key-1', ['column1:key11', 'column1:key13', 'column3:key32'])
+{
+    'column1': {'key11': 'value 11', 'key13': 'value 13'},
+    'column3': {'key32': 'value 32'}
+}
+
+If you set the ``perfect_dict`` argument to False, you'll get the `native` data structure.
+
+>>>  t.fetch('my-key-1', ['column1:key11', 'column1:key13', 'column3:key32'], perfect_dict=False)
+{
+    'column1:key11': 'value 11', 'column1:key13': 'value 13',
+    'column3:key32': 'value 32'
+}
+
 Add columns to the table
 -----------------------------------------
 Add columns given (``column4``, ``column5``).
 
 >>> t.add_columns('column4', 'column5')
+200
 
 Update row data
 -----------------------------------------
@@ -148,12 +180,34 @@ Update row data
 >>>     'my-key-1', 
 >>>     {'column4': {'key41': 'value 41', 'key42': 'value 42'}}
 >>> )
+200
+
+Remove row, row column or row cell
+-----------------------------------------
+Remove row cell (qualifier)
+
+>>> t.remove('my-key-1', 'column4', 'key41')
+200
+
+Remove row column (column family)
+
+>>> t.remove('my-key-1', 'column4')
+200
+
+Remove entire row
+
+>>> t.remove('my-key-1')
+200
 
 Drop columns from table
 -----------------------------------------
 Drop columns given (``column4``, ``column5``).
 
 >>> t.drop_columns('column4', 'column5')
+201
+
+Note, that if your columns contain data, even when dropped, the data is not immediately gone. If you first
+drop the column and the created it again, you will still have all your data originally stored in the column.
 
 Batch insert
 -----------------------------------------
@@ -165,6 +219,7 @@ Batch insert
 >>> for i in range(0, 5000):
 >>>     b.insert('my-key-%s' % i, data)
 >>> b.commit(finalize=True)
+{'method': 'PUT', 'response': [200], 'url': 'table3/bXkta2V5LTA='}
 
 Batch update
 -----------------------------------------
@@ -175,13 +230,20 @@ Batch update
 >>> for i in range(0, 5000):
 >>>     b.update('my-key-%s' % i, data)
 >>> b.commit(finalize=True)
+{'method': 'POST', 'response': [200], 'url': 'table3/bXkta2V5LTA='}
 
 Fetch all rows
 -----------------------------------------
 Table scanning is in development. At the moment it's only possible to fetch all rows from a
 table given. Results are stored in a generator.
 
->>> res = t.fetch_all_rows()
+>>> t.fetch_all_rows()
+<generator object results at 0x28e9190>
+
+Drop entire table
+-----------------------------------------
+>>> t.drop()
+200
 
 More examples
 =========================================

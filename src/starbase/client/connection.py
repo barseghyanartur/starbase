@@ -13,22 +13,25 @@ from starbase.client.http import HttpRequest
 class Connection(object):
     """
     Connection instance.
+
+    :param str host: Stargate host.
+    :param int port: Stargate port.
+    :param str user: Stargate user. Use this if your stargate is protected with HTTP basic
+        auth (to be used in combination with `password` argument).
+    :param str password: Stargate password (see comment to `user`).
+    :param bool secure: If set to True, HTTPS is used; otherwise - HTTP. Default value is False.
+    :param str content_type: Content type for data wrapping when communicating with the
+        Stargate. Possible options are: json, xml, protobuf, but at the moment only json is
+        supported.
+    :param bool perfect_dict: Global setting. If set to True, generally data will be returned as
+        perfect dict.
     """
     def __init__(self, host=HOST, port=PORT, user=USER, password=PASSWORD, secure=False, \
                  content_type=DEFAULT_CONTENT_TYPE, perfect_dict=PERFECT_DICT):
         """
-        Initialize a connection.
+        Creates a new connection instance.
 
-        :param str host: Stargate host.
-        :param int port: Stargate port.
-        :param str user: Stargate user. Use this if your stargate is protected with HTTP basic
-            auth (to be used in combination with `password` argument).
-        :param str password: Stargate password (see comment to `user`).
-        :param bool secure: If set to True, HTTPS is used; otherwise - HTTP. Default value is False.
-        :param str content_type: Content type for data wrapping when communicating with the
-            Stargate. Possible options are: json, xml, protobuf, but at the moment only json is
-            supported.
-        :param bool perfect_dict: Global setting. If set to True, generally data will be returned as perfect dict.
+        See docs above.
         """
         if not content_type in CONTENT_TYPES:
             raise ImproperlyConfigured(_("Invalid ``content_type`` %s value." % content_type))

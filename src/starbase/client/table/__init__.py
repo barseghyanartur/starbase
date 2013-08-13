@@ -19,13 +19,17 @@ from starbase.client.utils import build_json_data
 class Table(object):
     """
     For HBase table operations.
+
+    :param stargate.base.Connection connection: Connection instance.
+    :param str name: Table name.
     """
     FALSE_ROW_KEY = 'false-row-key'
 
     def __init__(self, connection, name):
         """
-        :param stargate.base.Connection connection: Connection instance.
-        :param str name: Table name.
+        Creates a new table instance.
+
+        See docs above.
         """
         self.connection = connection
         self.name = name
@@ -382,7 +386,7 @@ class Table(object):
         :param str row:
         :param (list, tuple or set) columns:
         :param timestamp:
-        :return int: HTTP status code.
+        :return int: HTTP status code (200 on success).
 
         :example:
         In the example below we first create a table named `table1` and then insert two rows to it.
@@ -448,7 +452,7 @@ class Table(object):
         :param str row:
         :param dict columns:
         :param timestamp: Not yet used.
-        :return int: HTTP response status code.
+        :return int: HTTP response status code (200 on success).
 
         :example:
         In the example below we first create a table named `table1` with columns `column1`, `column2` and
@@ -469,7 +473,9 @@ class Table(object):
         Drops current table. If not successful, returns appropriate HTTP error status code. If successful,
         returns HTTP 200 status.
 
-        :return int: HTTP response status code.
+        :return int: HTTP response status code (200 on success).
+
+        :example:
         In the example below we check if table named `table1` exists and if so - drop it.
 
         >>> from starbase import Connection
@@ -592,10 +598,10 @@ class Table(object):
     def create(self, *columns):
         """
         Creates a table schema. If not successful, returns appropriate HTTP error status code. If successful,
-        returns HTTP 200 status.
+        returns HTTP 201 status.
 
         :param list *columns: List of columns (plain strins).
-        :return int: HTTP response status code.
+        :return int: HTTP response status code (201 on success). Returns boolean False on failure.
 
         :example:
         >>> from starbase import Connection
@@ -671,7 +677,7 @@ class Table(object):
 
         :param str name: Table name.
         :param list *columns: List of columns (plain strins) to ADD.
-        :return int: HTTP response status code.
+        :return int: HTTP response status code (200 on success).
 
         :example:
         In the example below we create a new table named `table1` with columns `column1` and `column2`. In the next
@@ -689,11 +695,11 @@ class Table(object):
     def drop_columns(self, *columns):
         """
         Removes/drops columns from table (PUT).If not successful, returns appropriate HTTP error status code. If
-        successful, returns HTTP 200 status.
+        successful, returns HTTP 201 status.
 
         :param str name: Table name.
         :param list *columns: List of columns (plain strins) to REMOVE.
-        :return int: HTTP response status code.
+        :return int: HTTP response status code (201 on success).
 
         :example:
         Assuming that we have a table named `table1` with columns `column1` and `column2`.

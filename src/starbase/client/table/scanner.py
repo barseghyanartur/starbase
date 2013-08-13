@@ -12,7 +12,7 @@ from starbase.client.http.methods import PUT, POST, GET
 
 class Scanner(object):
     """
-    HBase scanner implementation.
+    Table scanner operations.
     """
     def __init__(self, table, url, batch_size=None, start_row=None, end_row=None, start_time=None, end_time=None, \
                  data={}, extra_headers={}, method=None):

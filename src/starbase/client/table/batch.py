@@ -9,15 +9,17 @@ from starbase.client.http.methods import PUT, POST
 
 class Batch(object):
     """
-    Batch.
+    Table batch operations.
+
+    :param starbase.client.table.Table table:
+    :param int size: Batch size. When set, auto commits stacked records when the stack reaches the
+        ``size`` value.
     """
     def __init__(self, table, size=None):
         """
         Creates a new batch instance.
 
-        :param starbase.client.table.Table table:
-        :param int size: Batch size. When set, auto commits stacked records when the stack reaches the
-            ``size`` value.
+        See docs above.
         """
         self.table = table
         self.size = size

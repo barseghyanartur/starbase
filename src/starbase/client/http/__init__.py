@@ -15,11 +15,13 @@ from starbase.client.http.methods import GET, PUT, POST, DELETE, METHODS, DEFAUL
 class HttpResponse(object):
     """
     HTTP response.
+
+    :param content:
+    :param bool raw:
     """
     def __init__(self, content, raw):
         """
-        :param content:
-        :param bool raw:
+        See the docs above.
         """
         self.content = content
         self.raw = raw
@@ -60,15 +62,16 @@ class HttpResponse(object):
 class HttpRequest(object):
     """
     HTTP request.
-    """
 
+    :param starbase.client.connection.Connection connection:
+    :param str url:
+    :param dict data:
+    :param bool decode_content: If set to True, response content is decoded.
+    :param str method:
+    """
     def __init__(self, connection, url='', data={}, decode_content=False, method=DEFAULT_METHOD):
         """
-        :param starbase.client.connection.Connection connection:
-        :param str url:
-        :param dict data:
-        :param bool decode_content: If set to True, response content is decoded.
-        :param str method:
+        See the docs above.
         """
         assert method in METHODS
 
