@@ -67,10 +67,6 @@ Install latest stable version from PyPI.
 
     $ pip install starbase
 
-Or latest stable version from bitbucket.
-
-    $ pip install -e hg+https://bitbucket.org/barseghyanartur/starbase@stable#egg=starbase
-
 Or latest stable version from github.
 
     $ pip install -e git+https://github.com/barseghyanartur/starbase@stable#egg=starbase
