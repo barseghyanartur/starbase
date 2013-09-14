@@ -1,6 +1,6 @@
 __title__ = 'starbase.defaults'
-__version__ = '0.1'
-__build__ = 0x000001
+__version__ = '0.2'
+__build__ = 0x000002
 __author__ = 'Artur Barseghyan'
 __all__ = ('PERFECT_DICT', 'HOST', 'PORT', 'USER', 'PASSWORD', 'DEBUG',)
 
