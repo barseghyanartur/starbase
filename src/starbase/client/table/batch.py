@@ -1,11 +1,11 @@
 __title__ = 'starbase.client.table.batch'
-__version__ = '0.1'
-__build__ = 0x000001
+__version__ = '0.2'
+__build__ = 0x000002
 __author__ = 'Artur Barseghyan'
 __all__ = ('Batch',)
 
-from starbase.client.http import HttpRequest
-from starbase.client.http.methods import PUT, POST
+from starbase.client.transport import HttpRequest
+from starbase.client.transport.methods import PUT, POST
 
 class Batch(object):
     """

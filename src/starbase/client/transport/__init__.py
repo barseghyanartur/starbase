@@ -1,16 +1,15 @@
-__title__ = 'starbase.client.http'
-__version__ = '0.1'
-__build__ = 0x000001
+__title__ = 'starbase.client.transport.__init__'
+__version__ = '0.2'
+__build__ = 0x000002
 __author__ = 'Artur Barseghyan'
 __all__ = ('HttpRequest', 'HttpResponse')
 
-from xml.etree import ElementTree
 import json
 import requests
 
 from starbase.json_decoder import json_decode
 from starbase.content_types import MEDIA_TYPE_JSON
-from starbase.client.http.methods import GET, PUT, POST, DELETE, METHODS, DEFAULT_METHOD
+from starbase.client.transport.methods import GET, PUT, POST, DELETE, METHODS, DEFAULT_METHOD
 
 class HttpResponse(object):
     """
@@ -97,7 +96,7 @@ class HttpRequest(object):
 
     def get_response(self):
         """
-        :return starbase.client.http.HttpResponse:
+        :return starbase.client.transport.HttpResponse:
         """
         response_content = None
 
@@ -106,13 +105,14 @@ class HttpRequest(object):
         if self.__connection.content_type == MEDIA_TYPE_JSON:
             try:
                 response_content = self.response.json()
-            except ValueError, e:
+            except ValueError as e:
                 response_content = None
+            except Exception as e:
+                pass
         else:
-            try:
-                response_content = ElementTree.fromstring(self.response.raw.read())
-            except ValueError, e:
-                response_content = '' # TODO
+            raise NotImplementedError("Connection type {0} is not implemented.".format(
+                self.__connection.content_type
+                ))
 
         if self.decode_content and self.response.ok: # Make sure OK is ok.
             response_content = json_decode(response_content)

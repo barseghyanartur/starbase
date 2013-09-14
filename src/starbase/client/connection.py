@@ -1,6 +1,6 @@
 __title__ = 'starbase.client.connection'
-__version__ = '0.1'
-__build__ = 0x000001
+__version__ = '0.2'
+__build__ = 0x000002
 __author__ = 'Artur Barseghyan'
 __all__ = ('Connection',)
 
@@ -8,7 +8,7 @@ from starbase.exceptions import ImproperlyConfigured
 from starbase.content_types import CONTENT_TYPES_DICT, CONTENT_TYPES, DEFAULT_CONTENT_TYPE
 from starbase.defaults import HOST, PORT, USER, PASSWORD, PERFECT_DICT
 from starbase.client.table import Table
-from starbase.client.http import HttpRequest
+from starbase.client.transport import HttpRequest
 
 class Connection(object):
     """
@@ -21,8 +21,7 @@ class Connection(object):
     :param str password: Stargate password (see comment to `user`).
     :param bool secure: If set to True, HTTPS is used; otherwise - HTTP. Default value is False.
     :param str content_type: Content type for data wrapping when communicating with the
-        Stargate. Possible options are: json, xml, protobuf, but at the moment only json is
-        supported.
+        Stargate. Possible options are: json.
     :param bool perfect_dict: Global setting. If set to True, generally data will be returned as
         perfect dict.
     """
@@ -114,7 +113,7 @@ class Connection(object):
         """
         Table list. Retrieves the list of available tables.
 
-        :param bool raw: If set to True raw result (JSON/XML/PHOTOBUF) is returned.
+        :param bool raw: If set to True raw result (JSON) is returned.
         :return list: Just a list of plain strings of table names, no Table instances.
         """
         response = HttpRequest(connection=self).get_response()

@@ -4,11 +4,13 @@ given in `keys_to_skip`. It's also possible to give a custom `decoder` instead o
 """
 
 __title__ = 'starbase.json_decoder'
-__version__ = '0.1'
-__build__ = 0x000001
+__version__ = '0.2'
+__build__ = 0x000002
 __author__ = 'Artur Barseghyan'
 __all__ = ('json_decode',)
 
+from six import PY2, PY3
+from six import string_types
 import base64
 
 DEBUG = False
@@ -87,10 +89,10 @@ def json_decode(json_data, keys_to_bypass_decoding=['timestamp'], keys_to_skip=[
         ]
     }
     """
-    assert isinstance(decoder, basestring) or callable(decoder)
+    assert isinstance(decoder, string_types) or callable(decoder)
 
     # Dynamic import in case if given as a string.
-    if isinstance(decoder, basestring):
+    if isinstance(decoder, string_types):
         decoder_function_path_parts = decoder.split('.')
 
         assert len(decoder_function_path_parts) > 1
@@ -108,7 +110,7 @@ def json_decode(json_data, keys_to_bypass_decoding=['timestamp'], keys_to_skip=[
     assert isinstance(keys_to_bypass_decoding, (list, tuple, set))
     assert isinstance(keys_to_skip, (list, tuple, set))
 
-    # Iterating through keys and values. If value is a basestring, we decode it using the given `decoder`. Otherwise,
+    # Iterating through keys and values. If value is a string, we decode it using the given `decoder`. Otherwise,
     # if list, tuple or set is given, iterate through the list and recursively call `json_decode` on each child item.
     for key, value in json_data.items():
         if key not in keys_to_skip:
@@ -121,9 +123,12 @@ def json_decode(json_data, keys_to_bypass_decoding=['timestamp'], keys_to_skip=[
                 keys_to_bypass_decoding.append(key)
 
             # If value is a string, we just encode it.
-            if isinstance(value, basestring):
+            if isinstance(value, string_types):
                 if key not in keys_to_bypass_decoding:
-                    decoded_json_data.update({key: decoder(value)})
+                    if PY2:
+                        decoded_json_data.update({key: decoder(value)})
+                    else:
+                        decoded_json_data.update({key: decoder(value.encode('utf8')).decode('utf8')})
                 else:
                     decoded_json_data.update({key: value})
             # If a list, we recursively apply `json_decoder` to all of its' children.

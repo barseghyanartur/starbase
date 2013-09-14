@@ -5,10 +5,10 @@ __author__ = 'Artur Barseghyan'
 
 CONTENT_TYPE_JSON = 'json'
 MEDIA_TYPE_JSON = 'application/json'
-CONTENT_TYPE_XML = 'xml'
-MEDIA_TYPE_XML = 'text/xml'
-CONTENT_TYPE_PROTOBUF = 'protobuf'
-MEDIA_TYPE_PROTOBUF = 'application/x-protobuf'
+#CONTENT_TYPE_XML = 'xml'
+#MEDIA_TYPE_XML = 'text/xml'
+#CONTENT_TYPE_PROTOBUF = 'protobuf'
+#MEDIA_TYPE_PROTOBUF = 'application/x-protobuf'
 DEFAULT_CONTENT_TYPE = CONTENT_TYPE_JSON
 
 CONTENT_TYPES_DICT = {

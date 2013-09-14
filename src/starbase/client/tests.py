@@ -1,9 +1,16 @@
+__title__ = 'starbase.tests'
+__version__ = '0.2'
+__build__ = 0x000002
+__author__ = 'Artur Barseghyan'
+
 import threading
 import multiprocessing
 import unittest
 import uuid
 
-import simple_timer
+import six
+from six import print_
+from six.moves import range as xrange
 
 from starbase import Connection, Table
 
@@ -33,8 +40,6 @@ TEST_ROW_KEY_1 = 'row1'
 TEST_ROW_KEY_2 = 'row2'
 TEST_ROW_KEY_3 = 'row3'
 
-PRINT_INFO = True
-TRACK_TIME = False
 TEST_DELETE_TABLE = True
 TEST_CREATE_TABLE = True
 
@@ -45,7 +50,12 @@ NUM_PROCESSES = 8
 class Registry(object):
     pass
 
+ordering = []
+
 registry = Registry()
+
+PRINT_INFO = True
+TRACK_TIME = False
 
 def print_info(func):
     """
@@ -56,21 +66,26 @@ def print_info(func):
 
     def inner(self, *args, **kwargs):
         if TRACK_TIME:
+            import simple_timer
             timer = simple_timer.Timer() # Start timer
+
+        ordering.append(func.__name__)
 
         result = func(self, *args, **kwargs)
 
         if TRACK_TIME:
             timer.stop() # Stop timer
 
-        print '\n%s' % func.__name__
-        print '============================'
+        print_('\n\n%s' % func.__name__)
+        print_('============================')
         if func.__doc__:
-            print '""" %s """' % func.__doc__.strip()
-        print '----------------------------'
-        if result is not None: print result
+            print_('""" %s """' % func.__doc__.strip())
+        print_('----------------------------')
+        if result is not None:
+            print_(result)
         if TRACK_TIME:
-            print 'done in %s seconds' % timer.duration
+            print_('done in %s seconds' % timer.duration)
+        print_('\n++++++++++++++++++++++++++++')
 
         return result
     return inner
@@ -87,19 +102,24 @@ class StarbaseClient01ConnectionTest(unittest.TestCase):
     @print_info
     def test_01_version(self):
         res = self.connection.version
-        self.assertIsInstance(res, dict)
+        self.assertTrue(isinstance(res, dict))
         return res
 
     @print_info
     def test_02_cluster_version(self):
         res = self.connection.cluster_version
-        self.assertIsInstance(res, unicode)
+
+        if six.PY2:
+            self.assertTrue(isinstance(res, unicode))
+        else:
+            self.assertTrue(isinstance(res, str))
+
         return res
 
     @print_info
     def test_03_cluster_status(self):
         res = self.connection.cluster_status
-        self.assertIsInstance(res, dict)
+        self.assertTrue(isinstance(res, dict))
         return res
 
     if TEST_DELETE_TABLE:
@@ -159,9 +179,9 @@ class StarbaseClient01ConnectionTest(unittest.TestCase):
     @print_info
     def test_07_table_list(self):
         res = self.connection.tables()
-        self.assertIsInstance(res, list)
+        self.assertTrue(isinstance(res, list))
 
-        self.assertIn(TABLE_NAME, res)
+        self.assertTrue(TABLE_NAME in res)
         return res
 
 
@@ -176,15 +196,15 @@ class StarbaseClient02TableTest(unittest.TestCase):
     @print_info
     def test_01_columns_list(self):
         res = self.table.columns()
-        self.assertIsInstance(res, list)
+        self.assertTrue(isinstance(res, list))
 
-        self.assertIn(COLUMN_FROM_USER, res)
-        self.assertIn(COLUMN_TO_USER, res)
-        self.assertIn(COLUMN_MESSAGE, res)
+        self.assertTrue(COLUMN_FROM_USER in res)
+        self.assertTrue(COLUMN_TO_USER in res)
+        self.assertTrue(COLUMN_MESSAGE in res)
         return res
 
     @print_info
-    def test_04a_table_put_multiple_column_data(self, process_number=0, perfect_dict=False):
+    def test_02_table_put_multiple_column_data(self, process_number=0, perfect_dict=False):
         """
         Insert multiple-colums into a single row of HBase using Stagate REST API using normal dict as input.
         """
@@ -226,14 +246,14 @@ class StarbaseClient02TableTest(unittest.TestCase):
         self.assertEqual(res, 200)
         return res
 
-    def test_04b_table_put_multiple_column_data_normal_dict(self, process_number=0):
+    def test_03_table_put_multiple_column_data_normal_dict(self, process_number=0):
         """
         Insert multiple-colums into a single row of HBase using Stagate REST API using perfect dict as input.
         """
-        return self.test_04a_table_put_multiple_column_data(process_number=process_number, perfect_dict=True)
+        return self.test_02_table_put_multiple_column_data(process_number=process_number, perfect_dict=True)
 
     @print_info
-    def test_05a_table_batch_put_multiple_column_data(self, process_number=0, perfect_dict=False):
+    def test_04_table_batch_put_multiple_column_data(self, process_number=0, perfect_dict=False):
         """
         Insert multiple-colums in batch into a HBase using Stagate REST API using normal dict as input.
         """
@@ -282,19 +302,19 @@ class StarbaseClient02TableTest(unittest.TestCase):
         registry.keys = keys
         return res
 
-    def test_05b_table_batch_put_multiple_column_data_perfect_dict(self, process_number=0):
+    def test_05_table_batch_put_multiple_column_data_perfect_dict(self, process_number=0):
         """
         Insert multiple-colums in batch into a HBase using Stagate REST API using perfect dict as input.
         """
-        return self.test_05a_table_batch_put_multiple_column_data(process_number=process_number, perfect_dict=True)
+        return self.test_04_table_batch_put_multiple_column_data(process_number=process_number, perfect_dict=True)
 
     @print_info
-    def test_05c_table_batch_post_multiple_column_data(self, process_number=0, perfect_dict=False):
+    def test_06_table_batch_post_multiple_column_data(self, process_number=0, perfect_dict=False):
         """
         Update multiple-colums in batch into a HBase using Stagate REST API using normal dict as input.
         """
-        # Updating the records inserted by `test_05a_table_batch_put_multiple_column_data` and
-        # `test_05b_table_batch_put_multiple_column_data_perfect_dict`.
+        # Updating the records inserted by `test_04_table_batch_put_multiple_column_data` and
+        # `test_05_table_batch_put_multiple_column_data_perfect_dict`.
         batch = self.table.batch()
 
         for key in registry.keys:
@@ -373,14 +393,14 @@ class StarbaseClient02TableTest(unittest.TestCase):
 
         return res
 
-    def test_05d_table_batch_post_multiple_column_data_perfect_dict(self, process_number=0):
+    def test_07_table_batch_post_multiple_column_data_perfect_dict(self, process_number=0):
         """
         Update multiple-colums in batch into a HBase using Stagate REST API using perfect dict as input.
         """
-        return self.test_05c_table_batch_post_multiple_column_data(process_number=process_number, perfect_dict=True)
+        return self.test_06_table_batch_post_multiple_column_data(process_number=process_number, perfect_dict=True)
 
     @print_info
-    def test_06_table_put_column_data(self, process_number=0):
+    def test_08_table_put_column_data(self, process_number=0):
         """
         Insert single column data into a single row of HBase using starbase REST API.
         """
@@ -405,11 +425,11 @@ class StarbaseClient02TableTest(unittest.TestCase):
         return res
 
     @print_info
-    def test_07a_table_put_column_data(self, process_number=0):
+    def test_09_table_put_column_data(self, process_number=0):
         """
         Insert single column data into a single row of HBase using starbase REST API.
 
-        ..note: Used in ``test_09_table_post_column_data``.
+        ..note: Used in ``test_13_table_post_column_data``.
         """
         key = 'row_1_abcdef'
 
@@ -428,11 +448,11 @@ class StarbaseClient02TableTest(unittest.TestCase):
         return res
 
     @print_info
-    def test_07b_table_put_column_data(self, process_number=0):
+    def test_10_table_put_column_data(self, process_number=0):
         """
         Insert multiple column data into a single row of HBase using starbase REST API.
 
-        ..note: Used in ``test_08a_get_single_row_with_all_columns`` and ``test_08b_get_single_row_with_all_columns``.
+        ..note: Used in ``test_11_get_single_row_with_all_columns`` and ``test_08b_get_single_row_with_all_columns``.
         """
         key = 'row_2_abcdef'
 
@@ -451,7 +471,7 @@ class StarbaseClient02TableTest(unittest.TestCase):
         return res
 
     @print_info
-    def test_08a_get_single_row_with_all_columns(self, row_key='row_2_abcdef'):
+    def test_11_get_single_row_with_all_columns(self, row_key='row_2_abcdef'):
         """
         Fetches a single row from HBase using starbase REST API with all columns of that row as simple dict.
         """
@@ -470,7 +490,7 @@ class StarbaseClient02TableTest(unittest.TestCase):
         return res
 
     @print_info
-    def test_08b_get_single_row_with_all_columns_as_perfect_dict(self, row_key='row_2_abcdef'):
+    def test_16_get_single_row_with_all_columns_as_perfect_dict(self, row_key='row_2_abcdef'):
         """
         Fetches a single row from HBase using starbase REST API with all columns of that row as perfect dict.
         """
@@ -484,10 +504,10 @@ class StarbaseClient02TableTest(unittest.TestCase):
         return res
 
     @print_info
-    def test_09_table_post_column_data(self, process_number=0):
+    def test_13_table_post_column_data(self, process_number=0):
         """
         Updates (POST) data of a single row of HBase using starbase REST API. Updates data set in
-        ``test_07a_table_put_column_data``.
+        ``test_09_table_put_column_data``.
         """
         key = 'row_1_abcdef'
 
@@ -514,15 +534,15 @@ class StarbaseClient02TableTest(unittest.TestCase):
             }
         res = self.table.insert(key, columns)
 
-        #print 'expected output: ', output
+        #print_('expected output: ', output)
 
         check_response = self.table.fetch(row=key, perfect_dict=False)
 
-        #print 'response received: ', check_response
+        #print_('response received: ', check_response)
         return res
 
     @print_info
-    def test_10_get_single_row_with_all_columns(self, row_key='row_1_abcdef'):
+    def test_14_get_single_row_with_all_columns(self, row_key='row_1_abcdef'):
         """
         Fetches a single row from HBase using starbase REST API with all columns of that row.
         """
@@ -537,10 +557,10 @@ class StarbaseClient02TableTest(unittest.TestCase):
         return res
 
     @print_info
-    def test_11_table_delete_rows_one_by_one(self, process_number=0):
+    def test_15_table_delete_rows_one_by_one(self, process_number=0):
         """
         Insert single column data into a single row of HBase using starbase REST API. Deletes data set by
-        ``test_06_table_put_column_data`` (all except the last record)..
+        ``test_08_table_put_column_data`` (all except the last record)..
         """
         key = 'row_1_'
         res = []
@@ -558,7 +578,7 @@ class StarbaseClient02TableTest(unittest.TestCase):
         return res
 
     @print_info
-    def test_12_get_single_row_with_all_columns(self, row_key='row_1_9'):
+    def test_16_get_single_row_with_all_columns(self, row_key='row_1_9'):
         """
         Fetches a single row from HBase using starbase REST API with all columns of that row.
         """
@@ -573,7 +593,7 @@ class StarbaseClient02TableTest(unittest.TestCase):
         return res
 
     @print_info
-    def test_13a_get_single_row_with_selective_columns(self, row_key='row_1_9'):
+    def test_17_get_single_row_with_selective_columns(self, row_key='row_1_9'):
         """
         Fetches a single row selective columns from HBase using starbase REST API.
         """
@@ -597,7 +617,7 @@ class StarbaseClient02TableTest(unittest.TestCase):
         return res
 
     @print_info
-    def test_13b_get_single_row_with_selective_columns(self, row_key='row_1_9'):
+    def test_18_get_single_row_with_selective_columns(self, row_key='row_1_9'):
         """
         Fetches a single row selective columns from HBase using starbase REST API.
         """
@@ -639,7 +659,7 @@ class StarbaseClient02TableTest(unittest.TestCase):
         return res
 
     @print_info
-    def test_14_table_get_all_rows(self, raw=True, perfect_dict=True):
+    def test_19_table_get_all_rows(self, raw=True, perfect_dict=True):
         """
         Get all rows.
         """
@@ -649,7 +669,7 @@ class StarbaseClient02TableTest(unittest.TestCase):
         return res
 
     #@print_info
-    def test_15_table_put_multiple_column_data_in_multithreading(self, number_of_threads=NUM_THREADS):
+    def test_20_table_put_multiple_column_data_in_multithreading(self, number_of_threads=NUM_THREADS):
         """
         Speed test.
         """
@@ -672,6 +692,7 @@ class StarbaseClient02TableTest(unittest.TestCase):
                 results.append(self.table.insert('%s%s' % (key, i), columns))
             return results
 
+        import simple_timer
         timer = simple_timer.Timer()
 
         threads = []
@@ -683,16 +704,15 @@ class StarbaseClient02TableTest(unittest.TestCase):
 
         [t.join() for t in threads]
 
-        print 'test_15_table_put_multiple_column_data_in_multithreading'
-        print "=============================="
-        print '%s records inserted in total' % (number_of_threads * NUM_ROWS)
-        print "total number of threads %s" % number_of_threads
-        print "%s seconds elapsed" % timer.stop_and_return_duration()
-        print "making it %s of records inserted per second\n" % \
-              (number_of_threads * NUM_ROWS / timer.duration)
+        print_('test_20_table_put_multiple_column_data_in_multithreading')
+        print_("==============================")
+        print_('%s records inserted in total' % (number_of_threads * NUM_ROWS))
+        print_("total number of threads %s" % number_of_threads)
+        print_("%s seconds elapsed" % timer.stop_and_return_duration())
+        print_("making it %s of records inserted per second\n" % (number_of_threads * NUM_ROWS / timer.duration))
 
     @print_info
-    def test_16_table_delete_row(self):
+    def test_21_table_delete_row(self):
         """
         Delete row.
         """
@@ -738,7 +758,7 @@ class StarbaseClient02TableTest(unittest.TestCase):
         return res
 
     @print_info
-    def test_17_alter_table(self):
+    def test_22_alter_table(self):
         """
         Testing altering the table (add/remove columns).
         """
@@ -836,18 +856,18 @@ class StarbaseClient02TableTest(unittest.TestCase):
             }
 
         self.sample_4 = {
-            u'Row': {
-                u'Cell': [
-                    {u'column': '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_ID), \
-                     u'timestamp': '1369247627546', u'$': '123'},
-                    {u'column': '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_EMAIL), \
-                     u'timestamp': '1369247627546', u'$': 'john@doe.com'},
-                    {u'column': '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_ID), \
-                     u'timestamp': '1369247627546', u'$': '345'},
-                    {u'column': '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_EMAIL), \
-                     u'timestamp': '1369247627546', u'$': 'lorem@ipsum.com'},
+            'Row': {
+                'Cell': [
+                    {'column': '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_ID), \
+                     'timestamp': '1369247627546', '$': '123'},
+                    {'column': '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_EMAIL), \
+                     'timestamp': '1369247627546', '$': 'john@doe.com'},
+                    {'column': '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_ID), \
+                     'timestamp': '1369247627546', '$': '345'},
+                    {'column': '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_EMAIL), \
+                     'timestamp': '1369247627546', '$': 'lorem@ipsum.com'},
                 ],
-                u'key': 'row81d70d7c-8f30-42fd-be1c-772308b25889908'
+                'key': 'row81d70d7c-8f30-42fd-be1c-772308b25889908'
             }
         }
 
@@ -883,7 +903,7 @@ class StarbaseClient02TableTest(unittest.TestCase):
         }
 
     @print_info
-    def test_18a_test_extract_usable_data_as_perfect_dict(self):
+    def test_23_test_extract_usable_data_as_perfect_dict(self):
         """
         Test ``_extract_usable_data`` method of ``starbase.client.Table`` as perfect dict.
         """
@@ -904,7 +924,7 @@ class StarbaseClient02TableTest(unittest.TestCase):
         return (r1, r2, r3, r4)
 
     @print_info
-    def test_18b_test_extract_usable_data(self):
+    def test_24_test_extract_usable_data(self):
         """
         Test ``_extract_usable_data`` method of ``starbase.client.Table`` as normal dict.
         """
@@ -927,3 +947,4 @@ class StarbaseClient02TableTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+    print_r('\n\n\n\n\n========================\n\n\n\n\nordering: ', ordering)

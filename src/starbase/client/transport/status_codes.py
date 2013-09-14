@@ -1,6 +1,6 @@
-__title__ = 'starbase.client.http.status_codes'
-__version__ = '0.1'
-__build__ = 0x000001
+__title__ = 'starbase.client.transport.status_codes'
+__version__ = '0.2'
+__build__ = 0x000002
 __author__ = 'Artur Barseghyan'
 
 # See the full list (http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html).

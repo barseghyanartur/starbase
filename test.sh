@@ -1,1 +1,6 @@
-python src/starbase/client/test.py
+reset
+./uninstall.sh
+clear
+./install.sh
+clear
+python src/starbase/client/tests.py

@@ -1,15 +1,17 @@
-__title__ = 'starbase.client.utils'
-__version__ = '0.1'
-__build__ = 0x000001
+__title__ = 'starbase.client.helpers'
+__version__ = '0.2'
+__build__ = 0x000002
 __author__ = 'Artur Barseghyan'
 __all__ = ('build_json_data',)
 
 import base64
 
+from six import PY2, PY3
+
 # Importing OrderedDict with fallback to separate package for Python 2.6 support.
 try:
     from collections import OrderedDict
-except ImportError, e:
+except ImportError as e:
     from ordereddict import OrderedDict
 
 def build_json_data(row, columns, timestamp=None, encode_content=False, with_row_declaration=True):
@@ -25,21 +27,30 @@ def build_json_data(row, columns, timestamp=None, encode_content=False, with_row
     """
     # Encoding the key if necessary
     if encode_content:
-        row = base64.b64encode(row)
+        if PY3:
+            row = base64.b64encode(row.encode('utf8')).decode('utf8')
+        else:
+            row = base64.b64encode(row)
 
     cell = []
+
+    columns_keys = [k for k, v in columns.items()]
 
     # Building table data dictionary.
     if columns:
         # Data structure #1
-        if ':' in columns.keys()[0]:
+        if ':' in columns_keys[0]:
             # Single column case
             if 1 == len(columns):
                 key, value = columns.items()[0]
 
                 if encode_content:
-                    key = base64.b64encode(key)
-                    value = base64.b64encode(str(value))
+                    if PY3:
+                        key = base64.b64encode(key.encode('utf8')).decode('utf8')
+                        value = base64.b64encode(str(value).encode('utf8')).decode('utf8')
+                    else:
+                        key = base64.b64encode(key)
+                        value = base64.b64encode(str(value))
 
                 cell_data = {
                     "column": key,
@@ -56,8 +67,12 @@ def build_json_data(row, columns, timestamp=None, encode_content=False, with_row
                     key, value = column
 
                     if encode_content:
-                        key = base64.b64encode(key)
-                        value = base64.b64encode(str(value))
+                        if PY3:
+                            key = base64.b64encode(key.encode('utf8')).decode('utf8')
+                            value = base64.b64encode(str(value).encode('utf8')).decode('utf8')
+                        else:
+                            key = base64.b64encode(key)
+                            value = base64.b64encode(str(value))
 
                     cell_data = {
                         "column": key,
@@ -76,8 +91,12 @@ def build_json_data(row, columns, timestamp=None, encode_content=False, with_row
                     column_family = '%s:%s' % (column, key)
 
                     if encode_content:
-                        column_family = base64.b64encode(column_family)
-                        value = base64.b64encode(str(value))
+                        if PY3:
+                            column_family = base64.b64encode(column_family.encode('utf8')).decode('utf8')
+                            value = base64.b64encode(str(value).encode('utf8')).decode('utf8')
+                        else:
+                            column_family = base64.b64encode(column_family)
+                            value = base64.b64encode(str(value))
 
                     cell_data = {
                         "column": column_family,
@@ -98,22 +117,3 @@ def build_json_data(row, columns, timestamp=None, encode_content=False, with_row
         return {"Row" : [table_data]}
     else:
         return table_data
-
-def build_xml_data(row, columns, timestamp=None, encode_content=False, with_row_declaration=True):
-    """
-    Builds XML data for read-write purposes. Used in `starbase.client.Table._build_table_data`.
-    """
-    # TODO: this is not ready yet!
-
-    # Initial table data
-    if encode_content:
-        row = base64.encodestring(row)
-
-    xml = """
-      xml_data = "<?xml version='1.0' encoding='UTF-8' standalone='yes'?><CellSet>"
-      xml_data << "<Row key='%(row)s rescue ''}'>"
-      """ % {'row': row}
-
-    xml += "</Row></CellSet>"
-
-    return xml

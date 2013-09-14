@@ -1,20 +1,22 @@
 __title__ = 'starbase.client.table'
-__version__ = '0.1'
-__build__ = 0x000001
+__version__ = '0.2'
+__build__ = 0x000002
 __author__ = 'Artur Barseghyan'
 __all__ = ('Table',)
 
 import base64
 import json
 
+from six import string_types, PY2, PY3
+
 from starbase.exceptions import InvalidArguments
 from starbase.content_types import DEFAULT_CONTENT_TYPE
 from starbase.defaults import PERFECT_DICT
-from starbase.client.http import HttpRequest
-from starbase.client.http.methods import GET, PUT, POST, DELETE
+from starbase.client.transport import HttpRequest
+from starbase.client.transport.methods import GET, PUT, POST, DELETE
 from starbase.client.table.scanner import Scanner
 from starbase.client.table.batch import Batch
-from starbase.client.utils import build_json_data
+from starbase.client.helpers import build_json_data
 
 class Table(object):
     """
@@ -48,7 +50,7 @@ class Table(object):
 
         :return list|dict: Extracted usable data.
         """
-        assert data.has_key('Row')
+        assert 'Row' in data
         row_data = data['Row']
 
         assert isinstance(row_data, (list, dict))
@@ -73,11 +75,18 @@ class Table(object):
         :param bool perfect_dict: If set to True, returns a perfect dict. If not given, global setting is used.
         :return dict:
         """
-        assert column_data.has_key('column')
-        assert column_data.has_key('$')
+        assert 'column' in column_data
+        assert '$' in column_data
 
         if perfect_dict:
-            column = column_data['column'].split(':')
+            if PY2:
+                column = column_data['column'].split(':')
+            else:
+                if isinstance(column_data['column'], bytes):
+                    column = column_data['column'].decode('utf8').split(':')
+                else:
+                    column = column_data['column'].split(':')
+
             assert 2 == len(column)
             column_family, key = column
             return {column_family: {key: column_data['$']}}
@@ -110,7 +119,11 @@ class Table(object):
                 for column_data in cell_data:
                     d = Table._extract_column_data(column_data, perfect_dict=perfect_dict)
                     for d_key, d_val in d.items():
-                        if extracted_cell_data.has_key(d_key):
+                        if not PY2:
+                            if isinstance(d_val, bytes):
+                                d_val = d_val.decode('utf8')
+
+                        if d_key in extracted_cell_data:
                             extracted_cell_data[d_key].update(d_val)
                         else:
                             extracted_cell_data[d_key] = d_val
@@ -130,8 +143,8 @@ class Table(object):
 
         :return dict:
         """
-        assert row_data.has_key('Cell')
-        assert row_data.has_key('key')
+        assert 'Cell' in row_data
+        assert 'key' in row_data
 
         result = Table._extract_cell_data(row_data['Cell'], perfect_dict=perfect_dict)
         if with_row_id:
@@ -175,19 +188,14 @@ class Table(object):
         :param dict columns: See data structure #1 and data structure #2 further for examples.
         :param timestamp: Not yet used.
         :param bool encode_content: If set to True, table data is encoded with base64.encodestring.
-        :param str content_type: Content type. Can be 'json', 'xml'
+        :param str content_type: Content type. Can be 'json'
         :param bool with_row_declaration: If set to True, {"Row" : [table_data]} structure is returned. Otherwise
             just table_data. False setting is used when preparing data for batch processing. Default value is True.
 
         :return dict:
         """
-        #if content_type == CONTENT_TYPE_JSON:
-        # Fow now we have the JSON only.
         return build_json_data(row, columns, timestamp=timestamp, encode_content=encode_content, \
                                with_row_declaration=with_row_declaration)
-        #elif content_type == CONTENT_TYPE_XML:
-        #    return build_xml_data(row, columns, timestamp=timestamp, encode_content=encode_content, \
-        #                          with_row_declaration=with_row_declaration)
 
     def _get(self, row, columns=None, timestamp=None, decode_content=True, number_of_versions=None, raw=False, \
             perfect_dict=None):
@@ -217,7 +225,7 @@ class Table(object):
             perfect_dict = self.connection.perfect_dict
 
         # If just one column given as string, make a list of it.
-        if isinstance(columns, (str, unicode)):
+        if isinstance(columns, string_types):
             columns = [columns]
 
         # Base URL
@@ -316,11 +324,16 @@ class Table(object):
         # Base URL
         url = ''
 
+        if PY3:
+            row_hash = base64.b64encode(row.encode('utf8')).decode('utf8')
+        else:
+            row_hash = base64.b64encode(row)
+
         if 1 == len(columns):
             cf = columns.keys()[0]
             url = "%(table_name)s/%(row)s/%(cf)s" % {'table_name': self.name, 'row': row, 'cf': cf}
         else:
-            url = "%(table_name)s/%(row)s" % {'table_name': self.name, 'row': base64.b64encode(row)}
+            url = "%(table_name)s/%(row)s" % {'table_name': self.name, 'row': row_hash}
 
         return url
     _build_post_url = _build_put_url
@@ -579,7 +592,7 @@ class Table(object):
         >>> table.columns()
         """
         schema = self.schema()
-        columns_schema = schema['ColumnSchema'] if schema and schema.has_key('ColumnSchema') else []
+        columns_schema = schema['ColumnSchema'] if schema and 'ColumnSchema' in schema else []
 
         return [cf['name'] for cf in columns_schema]
 
@@ -626,7 +639,7 @@ class Table(object):
         :return dict:
         """
         # If just one column given as string, make a list of it.
-        if isinstance(columns, (str, unicode)):
+        if isinstance(columns, string_types):
             columns = [columns]
 
         columns = set(columns)
