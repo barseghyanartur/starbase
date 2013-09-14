@@ -21,8 +21,14 @@ read my instructions on installing Cloudera manager (free) on Ubuntu 12.04 LTS h
 (http://barseghyanartur.blogspot.nl/2013/08/installing-cloudera-on-ubuntu-1204.html) or
 (https://bitbucket.org/barseghyanartur/simple-cloudera-install).
 
-Once you have everything installed and running (by default Stargate runs on 127.0.0.1:8000), you should be able
-to run `src/starbase/client/test.py` without problems (UnitTest).
+Once you have everything installed and running (by default Stargate runs on 127.0.0.1:8000), you should
+be able to run `src/starbase/client/test.py` without problems (UnitTest).
+
+Supported Python versions
+=========================================
+- 2.6.8 and up
+- 2.7
+- 3.3
 
 Features
 =========================================
@@ -57,14 +63,21 @@ Features in-development
 
 Installation
 =========================================
-Install latest stable version from PyPi
+Install latest stable version from PyPI.
 
     $ pip install starbase
 
-Usage examples
+Or latest stable version from bitbucket.
+
+    $ pip install -e hg+https://bitbucket.org/barseghyanartur/starbase@stable#egg=starbase
+
+Or latest stable version from github.
+
+    $ pip install -e git+https://github.com/barseghyanartur/starbase@stable#egg=starbase
+
+Usage and examples
 =========================================
-A lot of useful examples with comments could be found in `stargate.client.tests` module. Some most
-common operations are shown below.
+Operating with API starts with making a connection instance.
 
 Required imports
 -----------------------------------------
@@ -72,110 +85,119 @@ Required imports
 
 Create a connection instance
 -----------------------------------------
-Defaults to 127.0.0.1:8000. Specify when creating a connection instance if your settings are different.
+Defaults to 127.0.0.1:8000. Specify `host` and ``port`` arguments when creating a connection instance,
+if your settings are different.
 
 >>> c = Connection()
 
+With customisations, would look simlar to the following.
+
+>>> c = Connection(host='192.168.88.22', port=8001)
+
 Show tables
 -----------------------------------------
-Assuming that we have two tables named ``table1`` and ``table2``, we'll see the following.
+Assuming that there are two existing tables named ``table1`` and ``table2``, the following would be
+printed out.
 
 >>> c.tables()
 ['table1', 'table2']
 
-Create a new table
+Operating with table schema
 -----------------------------------------
-Create a table instance (note, that at this step no table is created). If you need to operate with
-table data, you need to create a table instance.
+Whenever you need to operate with a table, you need to have a table instance created.
+
+Create a table instance (note, that at this step no table is created).
 
 >>> t = c.table('table3')
 
-Create a table with columns ``column1``, ``column2``, ``column3`` (this is the point where the
-table is actually created).
+Create a new table
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Create a table named ``table3`` with columns ``column1``, ``column2``, ``column3`` (this is the point
+where the table is actually created). In the example below, ``column1``, ``column2`` and ``column3`` are
+column families (in short - columns). Columns are declared in the table schema.
 
 >>> t.create('column1', 'column2', 'column3')
 201
 
+Check if table exists
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>>> t.exists()
+True
+
 Show table columns
------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 >>> t.columns()
 ['column1', 'column2', 'column3']
 
-Insert data into a single row
+Add columns to the table
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Add columns given (``column4``, ``column5``, ``column6``, ``column7``).
+
+>>> t.add_columns('column4', 'column5', 'column6', 'column7')
+200
+
+Drop columns from table
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Drop columns given (``column6``, ``column7``).
+
+>>> t.drop_columns('column6', 'column7')
+201
+
+Drop entire table schema
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>>> t.drop()
+200
+
+Operating with table data
 -----------------------------------------
+
+Insert data into a single row
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+HBase is a key/value store. In HBase columns (also named column families) are part of declared table schema
+and have to be defined when a table is created. Columns have qualifiers, which are not declared in the table
+schema. Number of column qualifiers is not limited.
+
+Within a single row, a value is mapped by a column family and a qualifier (in terms of key/value store
+concept). Value might be anything castable to string (JSON objects, data structures, XML, etc).
+
+In the example below, ``key1``, ``key12``, ``key21``, etc. - are the qualifiers. Obviously, ``column1``,
+``column2`` and ``column3`` are column families.
+
+Column families must be composed of printable characters. Qualifiers can be made of any arbitrary bytes.
+
+Table rows are identified by row keys - unique identifiers (UID or so called primary key). In the example
+below, ``my-key-1`` is the row key (UID).
+
+То recap all what's said above, HBase maps (row key, column family, column qualifier and timestamp) to a
+value.
+
 >>> t.insert(
 >>>     'my-key-1',
 >>>     {
->>>         'column1': {'key11': 'value 11', 'key12': 'value 12', 'key13': 'value 13'},
+>>>         'column1': {'key11': 'value 11', 'key12': 'value 12',
+>>>                     'key13': 'value 13'},
 >>>         'column2': {'key21': 'value 21', 'key22': 'value 22'},
 >>>         'column3': {'key32': 'value 31', 'key32': 'value 32'}
 >>>     }
 >>> )
 200
 
-Note, that you may also use the `native` way of naming the columns and cells (qualifiers).
+Note, that you may also use the ``native`` way of naming the columns and cells (qualifiers). Result of
+the following would be equal to the result of the previous example.
 
 >>> t.insert(
 >>>     'my-key-1a',
 >>>     {
->>>         'column1:key11': 'value 11', 'column1:key12': 'value 12', 'column1:key13': 'value 13',
+>>>         'column1:key11': 'value 11', 'column1:key12': 'value 12',
+>>>         'column1:key13': 'value 13',
 >>>         'column2:key21': 'value 21', 'column2:key22': 'value 22',
 >>>         'column3:key32': 'value 31', 'column3:key32': 'value 32'
 >>>     }
 >>> )
 200
 
-
-Fetch a single row with all columns
------------------------------------------
->>> t.fetch('my-key-1')
-{
-    'column1': {'key11': 'value 11', 'key12': 'value 12', 'key13': 'value 13'},
-    'column2': {'key21': 'value 21', 'key22': 'value 22'},
-    'column3': {'key32': 'value 31', 'key32': 'value 32'}
-}
-
-Fetch a single row with selected columns
------------------------------------------
->>> t.fetch('my-key-1', ['column1', 'column2'])
-{
-    'column1': {'key11': 'value 11', 'key12': 'value 12', 'key13': 'value 13'},
-    'column2': {'key21': 'value 21', 'key22': 'value 22'},
-}
-
-Narrow the result set even more
------------------------------------------
->>> t.fetch('my-key-1', {'column1': ['key11', 'key13'], 'column3': ['key32']})
-{
-    'column1': {'key11': 'value 11', 'key13': 'value 13'},
-    'column3': {'key32': 'value 32'}
-}
-
-Note, that you may also use the `native` way of naming the columns and cells (qualifiers).
-
->>>  t.fetch('my-key-1', ['column1:key11', 'column1:key13', 'column3:key32'])
-{
-    'column1': {'key11': 'value 11', 'key13': 'value 13'},
-    'column3': {'key32': 'value 32'}
-}
-
-If you set the ``perfect_dict`` argument to False, you'll get the `native` data structure.
-
->>>  t.fetch('my-key-1', ['column1:key11', 'column1:key13', 'column3:key32'], perfect_dict=False)
-{
-    'column1:key11': 'value 11', 'column1:key13': 'value 13',
-    'column3:key32':'value 32'
-}
-
-Add columns to the table
------------------------------------------
-Add columns given (``column4``, ``column5``).
-
->>> t.add_columns('column4', 'column5')
-200
-
 Update row data
------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 >>> t.update(
 >>>     'my-key-1',
 >>>     {'column4': {'key41': 'value 41', 'key42': 'value 42'}}
@@ -183,34 +205,78 @@ Update row data
 200
 
 Remove row, row column or row cell
------------------------------------------
-Remove row cell (qualifier)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Remove a row cell (qualifier). In the example below, the ``my-key-1`` is table row UID, ``column4`` is
+the column family and the ``key41`` is the qualifier.
 
 >>> t.remove('my-key-1', 'column4', 'key41')
 200
 
-Remove row column (column family)
+Remove a row column (column family).
 
 >>> t.remove('my-key-1', 'column4')
 200
 
-Remove entire row
+Remove an entire row.
 
 >>> t.remove('my-key-1')
 200
 
-Drop columns from table
+Fetch table data
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Fetch a single row with all columns.
+
+>>> t.fetch('my-key-1')
+{
+    'column1': {'key11': 'value 11', 'key12': 'value 12', 'key13': 'value 13'},
+    'column2': {'key21': 'value 21', 'key22': 'value 22'},
+    'column3': {'key32': 'value 31', 'key32': 'value 32'}
+}
+
+Fetch a single row with selected columns (limit to ``column1`` and ``column2`` columns).
+
+>>> t.fetch('my-key-1', ['column1', 'column2'])
+{
+    'column1': {'key11': 'value 11', 'key12': 'value 12', 'key13': 'value 13'},
+    'column2': {'key21': 'value 21', 'key22': 'value 22'},
+}
+
+Narrow the result set even more (limit to cells ``key1`` and ``key2`` of column ``column1`` and cell
+``key32`` of column ``column3``).
+
+>>> t.fetch('my-key-1', {'column1': ['key11', 'key13'], 'column3': ['key32']})
+{
+    'column1': {'key11': 'value 11', 'key13': 'value 13'},
+    'column3': {'key32': 'value 32'}
+}
+
+Note, that you may also use the `native` way of naming the columns and cells (qualifiers). Example
+below does exactly the same as example above.
+
+>>>  t.fetch('my-key-1', ['column1:key11', 'column1:key13', 'column3:key32'])
+{
+    'column1': {'key11': 'value 11', 'key13': 'value 13'},
+    'column3': {'key32': 'value 32'}
+}
+
+If you set the `perfect_dict` argument to False, you'll get the ``native`` data structure.
+
+>>>  t.fetch('my-key-1', ['column1:key11', 'column1:key13', 'column3:key32'],
+>>>           perfect_dict=False)
+{
+    'column1:key11': 'value 11', 'column1:key13': 'value 13',
+    'column3:key32': 'value 32'
+}
+
+Batch operations with table data
 -----------------------------------------
-Drop columns given (``column4``, ``column5``).
-
->>> t.drop_columns('column4', 'column5')
-201
-
-Note, that if your columns contain data, even when dropped, the data is not immediately gone. If you first
-drop the column and the created it again, you will still have all your data originally stored in the column.
+Batch operations (insert and update) work similar to normal insert and update, but are done in a batch.
+You are advised to operate in batch as much as possible.
 
 Batch insert
------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In the example below, we will insert 5000 records in a batch.
+
 >>> data = {
 >>>     'column1': {'key11': 'value 11', 'key12': 'value 12', 'key13': 'value 13'},
 >>>     'column2': {'key21': 'value 21', 'key22': 'value 22'},
@@ -222,7 +288,9 @@ Batch insert
 {'method': 'PUT', 'response': [200], 'url': 'table3/bXkta2V5LTA='}
 
 Batch update
------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In the example below, we will update 5000 records in a batch.
+
 >>> data = {
 >>>     'column3': {'key31': 'value 31', 'key32': 'value 32'},
 >>> }
@@ -232,18 +300,16 @@ Batch update
 >>> b.commit(finalize=True)
 {'method': 'POST', 'response': [200], 'url': 'table3/bXkta2V5LTA='}
 
-Fetch all rows
+Note: The table `batch` method accepts an optional `size` argument (int). If set, an auto-commit is fired
+each the time the stack is ``full``.
+
+Table data search (row scanning)
 -----------------------------------------
-Table scanning is in development. At the moment it's only possible to fetch all rows from a
-table given. Results are stored in a generator.
+Table scanning is in development. At the moment it's only possible to fetch all rows from a table given.
+Result set returned is a generator.
 
 >>> t.fetch_all_rows()
 <generator object results at 0x28e9190>
-
-Drop entire table
------------------------------------------
->>> t.drop()
-200
 
 More examples
 =========================================
@@ -285,15 +351,15 @@ Print table metadata
 >>> print table.regions()
 
 License
-===================================
+=========================================
 GPL 2.0/LGPL 2.1
 
 Support
-===================================
+=========================================
 For any issues contact me at the e-mail given in the `Author` section.
 
 Author
-===================================
+=========================================
 Artur Barseghyan <artur.barseghyan@gmail.com>
 
 Documentation

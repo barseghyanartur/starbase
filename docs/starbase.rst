@@ -1,8 +1,8 @@
 starbase Package
-================
+===================
 
 :mod:`exceptions` Module
-------------------------
+---------------------------
 
 .. automodule:: starbase.exceptions
     :members:
@@ -10,7 +10,7 @@ starbase Package
     :show-inheritance:
 
 Subpackages
------------
+--------------
 
 .. toctree::
 

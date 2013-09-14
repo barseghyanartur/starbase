@@ -63,20 +63,28 @@ Features in-development
 
 Installation
 =========================================
-Install latest stable version from PyPi
+Install latest stable version from PyPI.
 
     $ pip install starbase
 
+Or latest stable version from bitbucket.
+
+    $ pip install -e hg+https://bitbucket.org/barseghyanartur/starbase@stable#egg=starbase
+
+Or latest stable version from github.
+
+    $ pip install -e git+https://github.com/barseghyanartur/starbase@stable#egg=starbase
+
 Usage and examples
-===========================================================
+=========================================
 Operating with API starts with making a connection instance.
 
 Required imports
------------------------------------------------------------
+-----------------------------------------
 >>> from starbase import Connection
 
 Create a connection instance
------------------------------------------------------------
+-----------------------------------------
 Defaults to 127.0.0.1:8000. Specify `host` and ``port`` arguments when creating a connection instance,
 if your settings are different.
 
@@ -87,7 +95,7 @@ With customisations, would look simlar to the following.
 >>> c = Connection(host='192.168.88.22', port=8001)
 
 Show tables
------------------------------------------------------------
+-----------------------------------------
 Assuming that there are two existing tables named ``table1`` and ``table2``, the following would be
 printed out.
 
@@ -95,7 +103,7 @@ printed out.
 ['table1', 'table2']
 
 Operating with table schema
------------------------------------------------------------
+-----------------------------------------
 Whenever you need to operate with a table, you need to have a table instance created.
 
 Create a table instance (note, that at this step no table is created).
@@ -103,7 +111,7 @@ Create a table instance (note, that at this step no table is created).
 >>> t = c.table('table3')
 
 Create a new table
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Create a table named ``table3`` with columns ``column1``, ``column2``, ``column3`` (this is the point
 where the table is actually created). In the example below, ``column1``, ``column2`` and ``column3`` are
 column families (in short - columns). Columns are declared in the table schema.
@@ -112,39 +120,39 @@ column families (in short - columns). Columns are declared in the table schema.
 201
 
 Check if table exists
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 >>> t.exists()
 True
 
 Show table columns
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 >>> t.columns()
 ['column1', 'column2', 'column3']
 
 Add columns to the table
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Add columns given (``column4``, ``column5``, ``column6``, ``column7``).
 
 >>> t.add_columns('column4', 'column5', 'column6', 'column7')
 200
 
 Drop columns from table
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Drop columns given (``column6``, ``column7``).
 
 >>> t.drop_columns('column6', 'column7')
 201
 
 Drop entire table schema
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 >>> t.drop()
 200
 
 Operating with table data
------------------------------------------------------------
+-----------------------------------------
 
 Insert data into a single row
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 HBase is a key/value store. In HBase columns (also named column families) are part of declared table schema
 and have to be defined when a table is created. Columns have qualifiers, which are not declared in the table
 schema. Number of column qualifiers is not limited.
@@ -189,7 +197,7 @@ the following would be equal to the result of the previous example.
 200
 
 Update row data
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 >>> t.update(
 >>>     'my-key-1',
 >>>     {'column4': {'key41': 'value 41', 'key42': 'value 42'}}
@@ -197,7 +205,7 @@ Update row data
 200
 
 Remove row, row column or row cell
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Remove a row cell (qualifier). In the example below, the ``my-key-1`` is table row UID, ``column4`` is
 the column family and the ``key41`` is the qualifier.
 
@@ -215,7 +223,7 @@ Remove an entire row.
 200
 
 Fetch table data
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Fetch a single row with all columns.
 
 >>> t.fetch('my-key-1')
@@ -261,12 +269,12 @@ If you set the `perfect_dict` argument to False, you'll get the ``native`` data 
 }
 
 Batch operations with table data
------------------------------------------------------------
+-----------------------------------------
 Batch operations (insert and update) work similar to normal insert and update, but are done in a batch.
 You are advised to operate in batch as much as possible.
 
 Batch insert
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 In the example below, we will insert 5000 records in a batch.
 
 >>> data = {
@@ -280,7 +288,7 @@ In the example below, we will insert 5000 records in a batch.
 {'method': 'PUT', 'response': [200], 'url': 'table3/bXkta2V5LTA='}
 
 Batch update
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 In the example below, we will update 5000 records in a batch.
 
 >>> data = {
@@ -296,7 +304,7 @@ Note: The table `batch` method accepts an optional `size` argument (int). If set
 each the time the stack is ``full``.
 
 Table data search (row scanning)
------------------------------------------------------------
+-----------------------------------------
 Table scanning is in development. At the moment it's only possible to fetch all rows from a table given.
 Result set returned is a generator.
 
@@ -343,13 +351,13 @@ Print table metadata
 >>> print table.regions()
 
 License
-===================================
+=========================================
 GPL 2.0/LGPL 2.1
 
 Support
-===================================
+=========================================
 For any issues contact me at the e-mail given in the `Author` section.
 
 Author
-===================================
+=========================================
 Artur Barseghyan <artur.barseghyan@gmail.com>

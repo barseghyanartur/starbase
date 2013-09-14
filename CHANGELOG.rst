@@ -4,9 +4,9 @@ Release history
 2013-09-13
 -------------------------------------
 ### 0.2
-- Python 2.6.8 and 3.3 support addede.
+- Python 2.6.8 and 3.3 support addeded.
 
 2013-08-12
 -------------------------------------
 ### 0.1
-- Initial
+- Initial.

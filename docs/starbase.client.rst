@@ -1,27 +1,27 @@
 client Package
-==============
+==================
 
 :mod:`connection` Module
-------------------------
+---------------------------
 
 .. automodule:: starbase.client.connection
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`utils` Module
--------------------
+:mod:`helpers` Module
+-----------------------
 
-.. automodule:: starbase.client.utils
+.. automodule:: starbase.client.helpers
     :members:
     :undoc-members:
     :show-inheritance:
 
 Subpackages
------------
+--------------
 
 .. toctree::
 
-    starbase.client.http
+    starbase.client.transport
     starbase.client.table
 
