@@ -31,5 +31,4 @@ uninstall.sh
 build_docs.sh
 rebuild_docs.sh
 README_old.rst
-starbase_guest_article_for_cloudera.rst
-starbase_guest_article_for_cloudera_ver2.rst
+starbase_guest_article_for_cloudera*

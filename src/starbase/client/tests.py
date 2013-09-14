@@ -791,9 +791,9 @@ class StarbaseClient02TableTest(unittest.TestCase):
 
         return res
 
-    def __set_test_16_data(self):
+    def __set_test_23_data(self):
         """
-        Not a test. Just sets some data for test #16.
+        Not a test. Just sets some data for test #23 ``test_23_test_extract_usable_data_as_perfect_dict``.
         """
         # ***************** Input data *******************
         self.sample_1 = {
@@ -907,7 +907,7 @@ class StarbaseClient02TableTest(unittest.TestCase):
         """
         Test ``_extract_usable_data`` method of ``starbase.client.Table`` as perfect dict.
         """
-        self.__set_test_16_data()
+        self.__set_test_23_data()
 
         r1 = Table._extract_usable_data(self.sample_1, perfect_dict=True)
         self.assertEqual(r1, self.sample_1_output_pd)
@@ -928,7 +928,7 @@ class StarbaseClient02TableTest(unittest.TestCase):
         """
         Test ``_extract_usable_data`` method of ``starbase.client.Table`` as normal dict.
         """
-        self.__set_test_16_data()
+        self.__set_test_23_data()
 
         r1 = Table._extract_usable_data(self.sample_1, perfect_dict=False)
         self.assertEqual(r1, self.sample_1_output)
@@ -947,4 +947,4 @@ class StarbaseClient02TableTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-    print_r('\n\n\n\n\n========================\n\n\n\n\nordering: ', ordering)
+    #print_('\n\n\n\n\n========================\n\n\n\n\nordering: ', ordering)
