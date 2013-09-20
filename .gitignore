@@ -12,6 +12,7 @@ build_docs.sh
 builddocs.zip
 build/
 dist/
+release/
 src/starbase.egg-info
 src/starbase/client/scanner_test.py
 src/starbase/client/speed_test.py

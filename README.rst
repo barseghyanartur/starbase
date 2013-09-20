@@ -81,7 +81,7 @@ Required imports
 
 Create a connection instance
 -----------------------------------------
-Defaults to 127.0.0.1:8000. Specify `host` and ``port`` arguments when creating a connection instance,
+Defaults to 127.0.0.1:8000. Specify ``host`` and ``port`` arguments when creating a connection instance,
 if your settings are different.
 
 >>> c = Connection()
@@ -100,7 +100,8 @@ printed out.
 
 Operating with table schema
 -----------------------------------------
-Whenever you need to operate with a table, you need to have a table instance created.
+Whenever you need to operate with a table (also, if you need to create one), you need to have a table
+instance created.
 
 Create a table instance (note, that at this step no table is created).
 
@@ -108,9 +109,10 @@ Create a table instance (note, that at this step no table is created).
 
 Create a new table
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Create a table named ``table3`` with columns ``column1``, ``column2``, ``column3`` (this is the point
-where the table is actually created). In the example below, ``column1``, ``column2`` and ``column3`` are
-column families (in short - columns). Columns are declared in the table schema.
+Assuming that no table named ``table3`` yet exists in the database, create a table named ``table3`` with
+columns (column families) ``column1``, ``column2``, ``column3`` (this is the point where the table is
+actually created). In the example below, ``column1``, ``column2`` and ``column3`` are column families (in
+short - columns). Columns are declared in the table schema.
 
 >>> t.create('column1', 'column2', 'column3')
 201
@@ -120,7 +122,7 @@ Check if table exists
 >>> t.exists()
 True
 
-Show table columns
+Show table columns (column families)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 >>> t.columns()
 ['column1', 'column2', 'column3']
@@ -156,7 +158,7 @@ schema. Number of column qualifiers is not limited.
 Within a single row, a value is mapped by a column family and a qualifier (in terms of key/value store
 concept). Value might be anything castable to string (JSON objects, data structures, XML, etc).
 
-In the example below, ``key1``, ``key12``, ``key21``, etc. - are the qualifiers. Obviously, ``column1``,
+In the example below, ``key11``, ``key12``, ``key21``, etc. - are the qualifiers. Obviously, ``column1``,
 ``column2`` and ``column3`` are column families.
 
 Column families must be composed of printable characters. Qualifiers can be made of any arbitrary bytes.
@@ -178,7 +180,7 @@ value.
 >>> )
 200
 
-Note, that you may also use the ``native`` way of naming the columns and cells (qualifiers). Result of
+Note, that you may also use the `native` way of naming the columns and cells (qualifiers). Result of
 the following would be equal to the result of the previous example.
 
 >>> t.insert(
@@ -200,27 +202,30 @@ Update row data
 >>> )
 200
 
-Remove row, row column or row cell
+Remove row, row column or row cell data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Remove a row cell (qualifier). In the example below, the ``my-key-1`` is table row UID, ``column4`` is
-the column family and the ``key41`` is the qualifier.
+Remove a row cell (qualifier) data. In the example below, the ``my-key-1`` is table row UID, ``column4``
+is the column family and the ``key41`` is the qualifier. Note, that only qualifer data (for the row given)
+is being removed. All other possible qualifiers of the column ``column4`` will remain untouched.
 
 >>> t.remove('my-key-1', 'column4', 'key41')
 200
 
-Remove a row column (column family).
+Remove a row column (column family) data. Note, that at this point, the entire column data (data of all
+qualifiers for the row given) is being removed.
 
 >>> t.remove('my-key-1', 'column4')
 200
 
-Remove an entire row.
+Remove an entire row data. Note, that in this case, entire row data, along with all columns and qualifiers
+for the row given, is being removed.
 
 >>> t.remove('my-key-1')
 200
 
 Fetch table data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Fetch a single row with all columns.
+Fetch a single row data with all columns and qualifiers.
 
 >>> t.fetch('my-key-1')
 {
@@ -229,7 +234,8 @@ Fetch a single row with all columns.
     'column3': {'key32': 'value 31', 'key32': 'value 32'}
 }
 
-Fetch a single row with selected columns (limit to ``column1`` and ``column2`` columns).
+Fetch a single row data with selected columns (limit to ``column1`` and ``column2`` columns and all
+their qualifiers).
 
 >>> t.fetch('my-key-1', ['column1', 'column2'])
 {
@@ -237,8 +243,8 @@ Fetch a single row with selected columns (limit to ``column1`` and ``column2`` c
     'column2': {'key21': 'value 21', 'key22': 'value 22'},
 }
 
-Narrow the result set even more (limit to cells ``key1`` and ``key2`` of column ``column1`` and cell
-``key32`` of column ``column3``).
+Narrow the result set even more (limit to qualifiers ``key1`` and ``key2`` of column ``column1`` and
+qualifier ``key32`` of column ``column3``).
 
 >>> t.fetch('my-key-1', {'column1': ['key11', 'key13'], 'column3': ['key32']})
 {
@@ -255,7 +261,7 @@ below does exactly the same as example above.
     'column3': {'key32': 'value 32'}
 }
 
-If you set the `perfect_dict` argument to False, you'll get the ``native`` data structure.
+If you set the `perfect_dict` argument to False, you'll get the `native` data structure.
 
 >>>  t.fetch('my-key-1', ['column1:key11', 'column1:key13', 'column3:key32'],
 >>>           perfect_dict=False)
