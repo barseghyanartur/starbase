@@ -3,7 +3,7 @@ syntax: regexp
 \.hgignore~
 \.gitignore~
 \.git
-\.git
+\.tox
 
 ^example/db/
 ^example/tmp/

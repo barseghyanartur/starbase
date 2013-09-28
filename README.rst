@@ -184,7 +184,7 @@ Note, that you may also use the `native` way of naming the columns and cells (qu
 the following would be equal to the result of the previous example.
 
 >>> t.insert(
->>>     'my-key-1a',
+>>>     'my-key-1',
 >>>     {
 >>>         'column1:key11': 'value 11', 'column1:key12': 'value 12',
 >>>         'column1:key13': 'value 13',
