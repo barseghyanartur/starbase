@@ -663,7 +663,6 @@ class StarbaseClient02TableTest(unittest.TestCase):
         """
         Get all rows.
         """
-
         res = list(self.table.fetch_all_rows(perfect_dict=perfect_dict))
         self.assertEqual(res[0]['to_user'], {'id': '220', 'email': 'lorem@ipsum.net', 'name': 'Lorem Ipsum'})
         self.assertEqual(res[1]['from_user'], {'id': '110', 'name': 'John Doe', 'email': 'john@doe.net'})
@@ -674,12 +673,19 @@ class StarbaseClient02TableTest(unittest.TestCase):
         """
         Get all rows with filter string
         """
-        row_filter_string = '{ "type": "RowFilter", "op": "EQUAL", "comparator": { "type": "RegexStringComparator", "value": "^row_1.+" } }'
+        row_filter_string = '{"type": "RowFilter", "op": "EQUAL", "comparator": {"type": "RegexStringComparator", "value": "^row_1.+" }}'
 
         res = list(self.table.fetch_all_rows(with_row_id=True, perfect_dict=perfect_dict, filter_string=row_filter_string))
 
         for row in res:
-            self.assertEqual(row, {'row_1_9': {'to_user': {'email': 'lorem@ipsum.net', 'name': 'Lorem Ipsum', 'id': '220'}, 'message': {'body': 'Lorem ipsum dolor sit amet.', 'subject': 'Lorem ipsum'}, 'from_user': {'email': 'john@doe.net', 'name': 'John Doe', 'id': '110'}}})
+            self.assertEqual(
+                row,
+                {
+                    'row_1_9': {'to_user': {'email': 'lorem@ipsum.net', 'name': 'Lorem Ipsum', 'id': '220'},
+                    'message': {'body': 'Lorem ipsum dolor sit amet.', 'subject': 'Lorem ipsum'},
+                    'from_user': {'email': 'john@doe.net', 'name': 'John Doe', 'id': '110'}}
+                }
+                )
             break
 
         return res

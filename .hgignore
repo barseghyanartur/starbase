@@ -13,6 +13,7 @@ syntax: regexp
 ^build/
 ^dist/
 ^release/
+^forks/
 ^src/starbase\.egg-info
 local_settings\.py
 MANIFEST\.in~

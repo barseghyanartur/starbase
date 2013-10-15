@@ -294,13 +294,22 @@ class Table(object):
 
     def fetch_all_rows(self, with_row_id=False, raw=False, perfect_dict=None, flat=False, filter_string=None):
         """
-        Fetcjes all table rows.
+        Fetches all table rows.
 
         :param bool with_row_id: If set to True, returned along with row id.
         :param bool raw: If set to True, raw response is returned.
         :param bool perfect_dict: If set to True, a perfect dict struture is used for output data.
-        :param string filter_string: If set then apply filter string to a scanner.
+        :param string filter_string: If set, applies the given filter string to the scanner.
         :returns list:
+
+        :example:
+        >>> filter_string = '{"type": "RowFilter", "op": "EQUAL", "comparator": '
+        >>>                 '{"type": "RegexStringComparator", "value": "^row_1.+" }}'
+        >>> rows = self.table.fetch_all_rows(
+        >>>            with_row_id = True,
+        >>>            perfect_dict = perfect_dict,
+        >>>            filter_string = row_filter_string
+        >>>            )
         """
         if not self.exists():
             return None
@@ -308,7 +317,8 @@ class Table(object):
         if perfect_dict is None:
             perfect_dict = self.connection.perfect_dict
 
-        res = self._scanner( filter_string=filter_string ).results(perfect_dict=perfect_dict, with_row_id=with_row_id, raw=raw)
+        res = self._scanner(filter_string=filter_string) \
+                  .results(perfect_dict=perfect_dict, with_row_id=with_row_id, raw=raw)
         if flat:
             res = list(res)
 
@@ -414,7 +424,8 @@ class Table(object):
         """
         return self._put(row=row, columns=columns, timestamp=timestamp)
 
-    def _scanner(self, batch_size=None, start_row=None, end_row=None, start_time=None, end_time=None, filter_string=None):
+    def _scanner(self, batch_size=None, start_row=None, end_row=None, start_time=None, end_time=None, \
+                 filter_string=None):
         """
         Creates a scanner instance.
 
@@ -430,7 +441,7 @@ class Table(object):
         data = ''
 
         if filter_string is not None:
-            data = { "filter": filter_string }
+            data = {"filter": filter_string}
 
         response = HttpRequest(connection=self.connection, url=url, data=data, method=PUT).get_response()
         scanner_url = response.raw.headers.get('location')
