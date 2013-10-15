@@ -292,13 +292,14 @@ class Table(object):
         return self._get(row, columns=columns, timestamp=timestamp, decode_content=True, \
                          number_of_versions=number_of_versions, raw=False, perfect_dict=perfect_dict)
 
-    def fetch_all_rows(self, with_row_id=False, raw=False, perfect_dict=None, flat=False):
+    def fetch_all_rows(self, with_row_id=False, raw=False, perfect_dict=None, flat=False, filter_string=None):
         """
         Fetcjes all table rows.
 
         :param bool with_row_id: If set to True, returned along with row id.
         :param bool raw: If set to True, raw response is returned.
         :param bool perfect_dict: If set to True, a perfect dict struture is used for output data.
+        :param string filter_string: If set then apply filter string to a scanner.
         :returns list:
         """
         if not self.exists():
@@ -307,7 +308,7 @@ class Table(object):
         if perfect_dict is None:
             perfect_dict = self.connection.perfect_dict
 
-        res = self._scanner().results(perfect_dict=perfect_dict, with_row_id=with_row_id, raw=raw)
+        res = self._scanner( filter_string=filter_string ).results(perfect_dict=perfect_dict, with_row_id=with_row_id, raw=raw)
         if flat:
             res = list(res)
 
@@ -413,7 +414,7 @@ class Table(object):
         """
         return self._put(row=row, columns=columns, timestamp=timestamp)
 
-    def _scanner(self, batch_size=None, start_row=None, end_row=None, start_time=None, end_time=None):
+    def _scanner(self, batch_size=None, start_row=None, end_row=None, start_time=None, end_time=None, filter_string=None):
         """
         Creates a scanner instance.
 
@@ -422,10 +423,16 @@ class Table(object):
         :param str end_row:
         :param start_time:
         :param end_time:
+        :param str filter_string:
         :return starbase.client.Scanner: Creates and returns a class::`starbase.client.Scanner` instance.
         """
         url = '%s/scanner' % self.name
-        response = HttpRequest(connection=self.connection, url=url, method=PUT).get_response()
+        data = ''
+
+        if filter_string is not None:
+            data = { "filter": filter_string }
+
+        response = HttpRequest(connection=self.connection, url=url, data=data, method=PUT).get_response()
         scanner_url = response.raw.headers.get('location')
 
         return Scanner(table=self, url=scanner_url)

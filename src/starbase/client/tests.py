@@ -602,7 +602,7 @@ class StarbaseClient02TableTest(unittest.TestCase):
             '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_ID),
             #'%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_NAME),
             #'%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_EMAIL),
-            
+
             '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_ID),
             #'%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_NAME),
             #'%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_EMAIL),
@@ -663,9 +663,25 @@ class StarbaseClient02TableTest(unittest.TestCase):
         """
         Get all rows.
         """
+
         res = list(self.table.fetch_all_rows(perfect_dict=perfect_dict))
         self.assertEqual(res[0]['to_user'], {'id': '220', 'email': 'lorem@ipsum.net', 'name': 'Lorem Ipsum'})
         self.assertEqual(res[1]['from_user'], {'id': '110', 'name': 'John Doe', 'email': 'john@doe.net'})
+        return res
+
+    @print_info
+    def test_19b_table_get_all_rows_with_filter(self, raw=True, perfect_dict=True):
+        """
+        Get all rows with filter string
+        """
+        row_filter_string = '{ "type": "RowFilter", "op": "EQUAL", "comparator": { "type": "RegexStringComparator", "value": "^row_1.+" } }'
+
+        res = list(self.table.fetch_all_rows(with_row_id=True, perfect_dict=perfect_dict, filter_string=row_filter_string))
+
+        for row in res:
+            self.assertEqual(row, {'row_1_9': {'to_user': {'email': 'lorem@ipsum.net', 'name': 'Lorem Ipsum', 'id': '220'}, 'message': {'body': 'Lorem ipsum dolor sit amet.', 'subject': 'Lorem ipsum'}, 'from_user': {'email': 'john@doe.net', 'name': 'John Doe', 'id': '110'}}})
+            break
+
         return res
 
     #@print_info
@@ -874,7 +890,7 @@ class StarbaseClient02TableTest(unittest.TestCase):
         # ***************** Expected output data *******************
         self.sample_1_output_pd = {'ColFam': {'Col1': 'someData'}}
 
-        self.sample_2_output_pd = {'ColFam': {'Col2': 'moreData', 'Col1': 'someData'}} 
+        self.sample_2_output_pd = {'ColFam': {'Col2': 'moreData', 'Col1': 'someData'}}
 
         self.sample_3_output_pd = [
             {'ColFam': {'Col2': 'moreData', 'Col1': 'someData'}},
