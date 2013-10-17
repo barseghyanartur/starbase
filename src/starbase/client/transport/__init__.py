@@ -84,13 +84,22 @@ class HttpRequest(object):
             }
         endpoint_url = self.__connection.base_url + self.url
 
+        is_xml_request = False
+        if isinstance(self.data, (str, unicode)) and self.data[:1] == '<':
+            is_xml_request = True
+
+        if is_xml_request:
+            headers [ 'Content-type' ] = 'text/xml'
+        else:
+            data = json.dumps ( data )
+
         # For the sake of simplicity the `requests` library replaced the `urllib2`.
         if GET == method:
-            self.response = requests.get(endpoint_url, data=json.dumps(data), headers=headers)
+            self.response = requests.get(endpoint_url, data=data, headers=headers)
         elif PUT == method:
-            self.response = requests.put(endpoint_url, data=json.dumps(data), headers=headers)
+            self.response = requests.put(endpoint_url, data=data, headers=headers)
         elif POST == method:
-            self.response = requests.post(endpoint_url, data=json.dumps(data), headers=headers)
+            self.response = requests.post(endpoint_url, data=data, headers=headers)
         elif DELETE == method:
             self.response = requests.delete(endpoint_url, headers=headers)
 
