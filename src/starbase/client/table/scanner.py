@@ -29,7 +29,7 @@ class Scanner(object):
         def encode_data(data):
             encoded = {}
             for key, value in data.items():
-                encoded.update({base64.b64encode(key): ase64.b64encode(value)})
+                encoded.update({base64.b64encode(key): base64.b64encode(value)})
             return encoded
 
         self.response = HttpRequest(
