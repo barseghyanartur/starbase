@@ -94,7 +94,7 @@ class Q(object):
     """
     AND = 'AND'
     OR = 'OR'
-    default = AND
+    default = OR
 
     def __init__(self, *args, **kwargs):
         """
