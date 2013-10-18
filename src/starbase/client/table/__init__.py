@@ -292,7 +292,7 @@ class Table(object):
         return self._get(row, columns=columns, timestamp=timestamp, decode_content=True, \
                          number_of_versions=number_of_versions, raw=False, perfect_dict=perfect_dict)
 
-    def fetch_all_rows(self, with_row_id=False, raw=False, perfect_dict=None, flat=False, filter_string=None):
+    def fetch_all_rows(self, with_row_id=False, raw=False, perfect_dict=None, flat=False, filter_string=None, scanner_config=''):
         """
         Fetches all table rows.
 
@@ -317,8 +317,9 @@ class Table(object):
         if perfect_dict is None:
             perfect_dict = self.connection.perfect_dict
 
-        res = self._scanner(filter_string=filter_string) \
+        res = self._scanner(filter_string=filter_string, data=scanner_config) \
                   .results(perfect_dict=perfect_dict, with_row_id=with_row_id, raw=raw)
+
         if flat:
             res = list(res)
 
@@ -425,7 +426,7 @@ class Table(object):
         return self._put(row=row, columns=columns, timestamp=timestamp)
 
     def _scanner(self, batch_size=None, start_row=None, end_row=None, start_time=None, end_time=None, \
-                 filter_string=None):
+                 filter_string=None, data=''):
         """
         Creates a scanner instance.
 
@@ -438,7 +439,6 @@ class Table(object):
         :return starbase.client.Scanner: Creates and returns a class::`starbase.client.Scanner` instance.
         """
         url = '%s/scanner' % self.name
-        data = ''
 
         if filter_string is not None:
             data = {"filter": filter_string}

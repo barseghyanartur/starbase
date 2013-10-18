@@ -690,6 +690,28 @@ class StarbaseClient02TableTest(unittest.TestCase):
 
         return res
 
+    @print_info
+    def test_19c_table_get_all_rows_with_scanner_config(self, raw=True, perfect_dict=True):
+        """
+        Get all rows with scanner config
+        """
+        scanner_config = '<Scanner maxVersions="1"><filter>{"op":"EQUAL", "type":"RowFilter", "comparator":{"value":"^row_1.+","type":"RegexStringComparator"}}</filter></Scanner>'
+
+        res = list(self.table.fetch_all_rows(with_row_id=True, perfect_dict=perfect_dict, scanner_config=scanner_config))
+
+        for row in res:
+            self.assertEqual(
+                row,
+                {
+                    'row_1_9': {'to_user': {'email': 'lorem@ipsum.net', 'name': 'Lorem Ipsum', 'id': '220'},
+                    'message': {'body': 'Lorem ipsum dolor sit amet.', 'subject': 'Lorem ipsum'},
+                    'from_user': {'email': 'john@doe.net', 'name': 'John Doe', 'id': '110'}}
+                }
+                )
+            break
+
+        return res
+
     #@print_info
     def test_20_table_put_multiple_column_data_in_multithreading(self, number_of_threads=NUM_THREADS):
         """
