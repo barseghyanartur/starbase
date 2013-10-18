@@ -9,13 +9,15 @@ Table instance.
 Using the QuerySet
 ---------------------
 
-Query by row key, using regex
+Query by row key, using regex. The "pk" prefix would mean we actually want to filter on row key. Otherwise,
+we would consider it to be a start of "column_family__column_qualifier" pair. If may of course vary from
+filter to filter, but the unified interface would work like that.
 
->>> results = t.filter(pk__eq__regex="^row_1.+")
+>>> results = t.filter(pk__eq__regex="^row_1.+").fetch()
 
-Query by row key, using equal
+Query by column qualifier, using equal.
 
->>> results = t.filter(column_1__qualifier_1__eq="john.doe@example.com")
+>>> results = t.filter(column_1__qualifier_1__eq="john.doe@example.com").fetch()
 
 When fireing one after another, joined by "AND". In the example below, both statements shall be satisfied.
 
