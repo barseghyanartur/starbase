@@ -10,6 +10,7 @@ import requests
 from starbase.json_decoder import json_decode
 from starbase.content_types import MEDIA_TYPE_JSON
 from starbase.client.transport.methods import GET, PUT, POST, DELETE, METHODS, DEFAULT_METHOD
+from six import string_types
 
 class HttpResponse(object):
     """
@@ -85,7 +86,7 @@ class HttpRequest(object):
         endpoint_url = self.__connection.base_url + self.url
 
         is_xml_request = False
-        if isinstance(self.data, (str, unicode)) and self.data[:1] == '<':
+        if isinstance(self.data, string_types) and self.data[:1] == '<':
             is_xml_request = True
 
         if is_xml_request:
