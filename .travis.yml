@@ -15,12 +15,18 @@ env:
 install: 
   python setup.py install
   
-  - if [[ $TRAVIS_PYTHON_VERSION == '2.6' && $SIXMIN == true]]; then pip uninstall six -y; pip install six==1.1.0; fi
-  - if [[ $TRAVIS_PYTHON_VERSION == '2.6' && $SIXMIN == false]]; then pip uninstall six -y; pip install six==1.4.1; fi
-  - if [[ $TRAVIS_PYTHON_VERSION == '2.7' && $SIXMIN == true]]; then pip uninstall six -y; pip install six==1.1.0; fi
-  - if [[ $TRAVIS_PYTHON_VERSION == '2.7' && $SIXMIN == false]]; then pip uninstall six -y; pip install six==1.4.1; fi
-  - if [[ $TRAVIS_PYTHON_VERSION == '3.3' && $SIXMIN == true]]; then pip uninstall six -y; pip install six==1.1.0; fi
-  - if [[ $TRAVIS_PYTHON_VERSION == '3.3' && $SIXMIN == false]]; then pip uninstall six -y; pip install six==1.4.1; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '2.6' && $SIXMIN == true]]; then pip uninstall six -y; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '2.6' && $SIXMIN == true]]; then pip install six==1.1.0; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '2.6' && $SIXMIN == false]]; then pip uninstall six -y; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '2.6' && $SIXMIN == false]]; then pip install six==1.4.1; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '2.7' && $SIXMIN == true]]; then pip uninstall six -y; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '2.7' && $SIXMIN == true]]; then pip install six==1.1.0; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '2.7' && $SIXMIN == false]]; then pip uninstall six -y; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '2.7' && $SIXMIN == false]]; then pip install six==1.4.1; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.3' && $SIXMIN == true]]; then pip uninstall six -y; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.3' && $SIXMIN == true]]; then pip install six==1.1.0; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.3' && $SIXMIN == false]]; then pip uninstall six -y; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.3' && $SIXMIN == false]]; then pip install six==1.4.1; fi
 
 # Command to run tests
 script: 
