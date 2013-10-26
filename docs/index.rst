@@ -307,10 +307,18 @@ each the time the stack is ``full``.
 
 Table data search (row scanning)
 -----------------------------------------
-Table scanning is in development. At the moment it's only possible to fetch all rows from a table given.
-Result set returned is a generator.
+Table scanning is in development (therefore, the scanning API will likely be changed). Result set returned is a
+generator.
 
+Fetch all rows
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 >>> t.fetch_all_rows()
+<generator object results at 0x28e9190>
+
+Fetch rows with a filter given
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>>> rf = '{"type": "RowFilter", "op": "EQUAL", "comparator": {"type": "RegexStringComparator", "value": "^row_1.+"}}'
+>>> t.fetch_all_rows(with_row_id=True, filter_string=rf)
 <generator object results at 0x28e9190>
 
 More examples

@@ -29,7 +29,7 @@ class Batch(object):
         self._response = []
 
     def __repr__(self):
-        return "<starbase.client.batch.Batch> of %s" % self.table
+        return "<starbase.client.batch.Batch> of {0}".format(self.table)
 
     def _put(self, row, columns, timestamp=None, encode_content=True):
         """

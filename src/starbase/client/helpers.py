@@ -6,7 +6,7 @@ __all__ = ('build_json_data',)
 
 import base64
 
-from six import PY2, PY3
+from six import PY3
 
 # Importing OrderedDict with fallback to separate package for Python 2.6 support.
 try:
@@ -88,7 +88,7 @@ def build_json_data(row, columns, timestamp=None, encode_content=False, with_row
         else:
             for column, data in columns.items():
                 for key, value in data.items():
-                    column_family = '%s:%s' % (column, key)
+                    column_family = '{0}:{1}'.format(column, key)
 
                     if encode_content:
                         if PY3:

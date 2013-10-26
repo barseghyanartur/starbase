@@ -7,7 +7,7 @@ __all__ = ('Table',)
 import base64
 import json
 
-from six import string_types, PY2, PY3
+from six import string_types, PY3
 
 from starbase.exceptions import InvalidArguments
 from starbase.content_types import DEFAULT_CONTENT_TYPE
@@ -37,7 +37,7 @@ class Table(object):
         self.name = name
 
     def __repr__(self):
-        return "<starbase.client.table.Table (%s)> on %s" % (self.name, self.connection)
+        return "<starbase.client.table.Table ({0})> on {1}".format(self.name, self.connection)
 
     @staticmethod
     def _extract_usable_data(data, with_row_id=False, perfect_dict=PERFECT_DICT):
@@ -79,13 +79,13 @@ class Table(object):
         assert '$' in column_data
 
         if perfect_dict:
-            if PY2:
-                column = column_data['column'].split(':')
-            else:
+            if PY3:
                 if isinstance(column_data['column'], bytes):
                     column = column_data['column'].decode('utf8').split(':')
                 else:
                     column = column_data['column'].split(':')
+            else:
+                column = column_data['column'].split(':')
 
             assert 2 == len(column)
             column_family, key = column
@@ -119,7 +119,7 @@ class Table(object):
                 for column_data in cell_data:
                     d = Table._extract_column_data(column_data, perfect_dict=perfect_dict)
                     for d_key, d_val in d.items():
-                        if not PY2:
+                        if PY3:
                             if isinstance(d_val, bytes):
                                 d_val = d_val.decode('utf8')
 
@@ -172,7 +172,7 @@ class Table(object):
             if isinstance(columns, dict):
                 for column, qualifiers in columns.items():
                     for qualifier in qualifiers:
-                        url_parts.append('%(column)s:%(qualifier)s' % {'column': column, 'qualifier': qualifier})
+                        url_parts.append('{column}:{qualifier}'.format(column=column, qualifier=qualifier))
 
         return ','.join(url_parts)
 
@@ -229,14 +229,14 @@ class Table(object):
             columns = [columns]
 
         # Base URL
-        url = "%(table_name)s/%(row)s/" % {'table_name': self.name, 'row': row}
+        url = "{table_name}/{row}/".format(table_name=self.name, row=row)
 
         url += self._build_url_parts(columns)
 
         # If should be versioned, adding additional URL parts.
         if number_of_versions is not None:
             assert isinstance(number_of_versions, int)
-            url += '?v=%s' % str(number_of_versions)
+            url += '?v={0}'.format(str(number_of_versions))
         response = HttpRequest(connection=self.connection, url=url, decode_content=decode_content).get_response()
 
         response_content = response.content
@@ -304,7 +304,7 @@ class Table(object):
 
         :example:
         >>> filter_string = '{"type": "RowFilter", "op": "EQUAL", "comparator": '
-        >>>                 '{"type": "RegexStringComparator", "value": "^row_1.+" }}'
+        >>>                 '{"type": "RegexStringComparator", "value": "^row_1.+"}}'
         >>> rows = self.table.fetch_all_rows(
         >>>            with_row_id = True,
         >>>            perfect_dict = perfect_dict,
@@ -344,9 +344,9 @@ class Table(object):
 
         if 1 == len(columns):
             cf = columns.keys()[0]
-            url = "%(table_name)s/%(row)s/%(cf)s" % {'table_name': self.name, 'row': row, 'cf': cf}
+            url = "{table_name}/{row}/{cf}".format(table_name=self.name, row=row, cf=cf)
         else:
-            url = "%(table_name)s/%(row)s" % {'table_name': self.name, 'row': row_hash}
+            url = "{table_name}/{row}".format(table_name=self.name, row=row_hash)
 
         return url
     _build_post_url = _build_put_url
@@ -366,12 +366,12 @@ class Table(object):
 
         # Base URL
         parts = []
-        parts.append("%(table_name)s/%(row)s" % {'table_name': self.name, 'row': row})
+        parts.append("{table_name}/{row}".format(table_name=self.name, row=row))
 
         if qualifier:
-            parts.append("%s:%s" % (column, qualifier))
+            parts.append("{0}:{1}".format(column, qualifier))
         elif column:
-            parts.append("%s" % column)
+            parts.append("{0}".format(column))
 
         return '/'.join(parts)
 
@@ -439,7 +439,7 @@ class Table(object):
         :param str filter_string:
         :return starbase.client.Scanner: Creates and returns a class::`starbase.client.Scanner` instance.
         """
-        url = '%s/scanner' % self.name
+        url = '{0}/scanner'.format(self.name)
 
         if filter_string is not None:
             data = {"filter": filter_string}
@@ -518,7 +518,7 @@ class Table(object):
         """
         response = HttpRequest(
             connection = self.connection,
-            url = '%s/schema' % self.name,
+            url = '{0}/schema'.format(self.name),
             method = DELETE
             ).get_response()
 
@@ -580,7 +580,7 @@ class Table(object):
         >>> table = connection.table('table1')
         >>> table.schema()
         """
-        url = "%(table_name)s/schema" % {'table_name': self.name}
+        url = "{table_name}/schema".format(table_name=self.name)
         response = HttpRequest(connection=self.connection, url=url).get_response()
         return response.content
 
@@ -621,7 +621,7 @@ class Table(object):
 
         :return dict:
         """
-        url = "%(table_name)s/regions" % {'table_name': self.name}
+        url = "{table_name}/regions".format(table_name=self.name)
         response = HttpRequest(connection=self.connection, url=url).get_response()
         return response.content
     metadata = regions
@@ -663,7 +663,7 @@ class Table(object):
 
         columns = set(columns)
 
-        url = "%(table_name)s/schema" % {'table_name': self.name}
+        url = "{table_name}/schema".format(table_name=self.name)
 
         data = {'name': self.name, 'ColumnSchema': []}
 

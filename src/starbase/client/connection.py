@@ -33,13 +33,13 @@ class Connection(object):
         See docs above.
         """
         if not content_type in CONTENT_TYPES:
-            raise ImproperlyConfigured(_("Invalid ``content_type`` %s value." % content_type))
+            raise ImproperlyConfigured(_("Invalid ``content_type`` {0} value.".format(content_type)))
 
         if not host:
-            raise ImproperlyConfigured(_("Invalid ``host`` %s value." % host))
+            raise ImproperlyConfigured(_("Invalid ``host`` {0} value.".format(host)))
 
         if not port:
-            raise ImproperlyConfigured(_("Invalid ``port`` %s value." % port))
+            raise ImproperlyConfigured(_("Invalid ``port`` {0} value.".format(port)))
 
         self.host = host
         self.port = port
@@ -51,16 +51,16 @@ class Connection(object):
         self.__connect()
 
     def __repr__(self):
-        return "<starbase.client.connection.Connection (%s:%s)>" % (self.host, self.port)
+        return "<starbase.client.connection.Connection ({0}:{1})>".format(self.host, self.port)
 
     def __connect(self):
         data = {
             'secure': 's' if self.secure else '',
             'host': self.host,
             'port': self.port,
-            'user_credentials': ("%s:%s@" % (self.user, self.password)) if (self.user and self.password) else ''
+            'user_credentials': ("{0}:{1}@".format(self.user, self.password)) if (self.user and self.password) else ''
         }
-        self.base_url = 'http%(secure)s://%(user_credentials)s%(host)s:%(port)s/' % data
+        self.base_url = 'http{secure}://{user_credentials}{host}:{port}/'.format(**data)
 
     @property
     def version(self):

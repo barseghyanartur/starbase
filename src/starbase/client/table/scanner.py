@@ -24,7 +24,7 @@ class Scanner(object):
         self.start_time = start_time
         self.end_time = end_time
         self.id = url.split('/')[-1]
-        url = '%(table_name)s/scanner/%(scanner_id)s' % {'table_name': self.table.name, 'scanner_id': self.id}
+        url = '{table_name}/scanner/{scanner_id}'.format(table_name=self.table.name, scanner_id=self.id)
 
         def encode_data(data):
             encoded = {}
@@ -44,7 +44,7 @@ class Scanner(object):
         """
         Delete scanner.
         """
-        url = '%(table_name)s/scanner/%(scanner_id)s' % {'table_name': self.table.name, 'scanner_id': self.id}
+        url = '{table_name}/scanner/{scanner_id}'.format(table_name=self.table.name, scanner_id=self.id)
         response = HttpRequest(connection=self.table.connection, url=url, method=DELETE).get_response()
         return response.status_code
 

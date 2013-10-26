@@ -9,7 +9,7 @@ __build__ = 0x000002
 __author__ = 'Artur Barseghyan'
 __all__ = ('json_decode',)
 
-from six import PY2, PY3
+from six import PY3
 from six import string_types
 import base64
 
@@ -100,7 +100,7 @@ def json_decode(json_data, keys_to_bypass_decoding=['timestamp'], keys_to_skip=[
         module_path = '.'.join(decoder_function_path_parts[:-1])
         function_name = decoder_function_path_parts[-1]
 
-        exec('from %s import %s as decoder' % (module_path, function_name))
+        exec('from {0} import {1} as decoder'.format(module_path, function_name))
         assert callable(decoder)
 
     # Final dict
@@ -125,10 +125,10 @@ def json_decode(json_data, keys_to_bypass_decoding=['timestamp'], keys_to_skip=[
             # If value is a string, we just encode it.
             if isinstance(value, string_types):
                 if key not in keys_to_bypass_decoding:
-                    if PY2:
-                        decoded_json_data.update({key: decoder(value)})
-                    else:
+                    if PY3:
                         decoded_json_data.update({key: decoder(value.encode('utf8')).decode('utf8')})
+                    else:
+                        decoded_json_data.update({key: decoder(value)})
                 else:
                     decoded_json_data.update({key: value})
             # If a list, we recursively apply `json_decoder` to all of its' children.
@@ -151,6 +151,6 @@ def json_decode(json_data, keys_to_bypass_decoding=['timestamp'], keys_to_skip=[
                     )
             # Otherwise, it's not a valid JSON provided.
             else:
-                raise ValueError("Not allowed type for JSON dictionary: %s" % type(value))
+                raise ValueError("Not allowed type for JSON dictionary: {0}".format(type(value)))
 
     return decoded_json_data

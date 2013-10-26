@@ -8,9 +8,13 @@ import multiprocessing
 import unittest
 import uuid
 
-import six
-from six import print_
-from six.moves import range as xrange
+from six import text_type, PY3, print_
+
+try:
+    from six.moves import range as xrange
+except ImportError:
+    if PY3:
+        xrange = range
 
 from starbase import Connection, Table
 
@@ -76,15 +80,15 @@ def print_info(func):
         if TRACK_TIME:
             timer.stop() # Stop timer
 
-        print_('\n\n%s' % func.__name__)
+        print_('\n\n{0}'.format(func.__name__))
         print_('============================')
         if func.__doc__:
-            print_('""" %s """' % func.__doc__.strip())
+            print_('""" {0} """'.format(func.__doc__.strip()))
         print_('----------------------------')
         if result is not None:
             print_(result)
         if TRACK_TIME:
-            print_('done in %s seconds' % timer.duration)
+            print_('done in {0} seconds'.format(timer.duration))
         print_('\n++++++++++++++++++++++++++++')
 
         return result
@@ -109,10 +113,7 @@ class StarbaseClient01ConnectionTest(unittest.TestCase):
     def test_02_cluster_version(self):
         res = self.connection.cluster_version
 
-        if six.PY2:
-            self.assertTrue(isinstance(res, unicode))
-        else:
-            self.assertTrue(isinstance(res, str))
+        self.assertTrue(isinstance(res, text_type))
 
         return res
 
@@ -209,7 +210,7 @@ class StarbaseClient02TableTest(unittest.TestCase):
         Insert multiple-colums into a single row of HBase using Stagate REST API using normal dict as input.
         """
         # Success test
-        key = 'row_%s_%s' % (('perfect_' if perfect_dict else ''), str(uuid.uuid4()))
+        key = 'row_{0}_{1}'.format(('perfect_' if perfect_dict else ''), str(uuid.uuid4()))
 
         columns = {}
 
@@ -232,14 +233,14 @@ class StarbaseClient02TableTest(unittest.TestCase):
             }
         else:
             columns = {
-                '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_ID): '123',
-                '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_NAME): 'John Doe',
-                '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_EMAIL): 'john@doe.com',
-                '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_ID): '456',
-                '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_NAME): 'Lorem Ipsum',
-                '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_EMAIL): 'lorem@ipsum.com',
-                '%s:%s' % (COLUMN_MESSAGE, FIELD_MESSAGE_SUBJECT): 'Lorem ipsum',
-                '%s:%s' % (COLUMN_MESSAGE, FIELD_MESSAGE_BODY): 'Lorem ipsum dolor sit amet.'
+                '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_ID): '123',
+                '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_NAME): 'John Doe',
+                '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_EMAIL): 'john@doe.com',
+                '{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_ID): '456',
+                '{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_NAME): 'Lorem Ipsum',
+                '{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_EMAIL): 'lorem@ipsum.com',
+                '{0}:{1}'.format(COLUMN_MESSAGE, FIELD_MESSAGE_SUBJECT): 'Lorem ipsum',
+                '{0}:{1}'.format(COLUMN_MESSAGE, FIELD_MESSAGE_BODY): 'Lorem ipsum dolor sit amet.'
             }
 
         res = self.table.insert(key, columns)
@@ -261,7 +262,7 @@ class StarbaseClient02TableTest(unittest.TestCase):
 
         keys = []
         for i in range(0, NUM_ROWS):
-            key = 'row_%s_%s' % (('perfect_' if perfect_dict else ''), str(uuid.uuid4()))
+            key = 'row_{0}_{1}'.format(('perfect_' if perfect_dict else ''), str(uuid.uuid4()))
             keys.append(key)
 
             columns = {}
@@ -285,14 +286,14 @@ class StarbaseClient02TableTest(unittest.TestCase):
                 }
             else:
                 columns = {
-                    '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_ID): '123',
-                    '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_NAME): 'John Doe',
-                    '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_EMAIL): 'john@doe.com',
-                    '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_ID): '456',
-                    '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_NAME): 'Lorem Ipsum',
-                    '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_EMAIL): 'lorem@ipsum.com',
-                    '%s:%s' % (COLUMN_MESSAGE, FIELD_MESSAGE_SUBJECT): 'Lorem ipsum',
-                    '%s:%s' % (COLUMN_MESSAGE, FIELD_MESSAGE_BODY): 'Lorem ipsum dolor sit amet.'
+                    '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_ID): '123',
+                    '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_NAME): 'John Doe',
+                    '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_EMAIL): 'john@doe.com',
+                    '{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_ID): '456',
+                    '{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_NAME): 'Lorem Ipsum',
+                    '{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_EMAIL): 'lorem@ipsum.com',
+                    '{0}:{1}'.format(COLUMN_MESSAGE, FIELD_MESSAGE_SUBJECT): 'Lorem ipsum',
+                    '{0}:{1}'.format(COLUMN_MESSAGE, FIELD_MESSAGE_BODY): 'Lorem ipsum dolor sit amet.'
                 }
 
             batch.insert(key, columns)
@@ -335,10 +336,10 @@ class StarbaseClient02TableTest(unittest.TestCase):
                 }
             else:
                 columns = {
-                    '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_AVATAR): '://example.com/avatar_from_user.jpg',
-                    '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_AVATAR): '://example.com/avatar_to_user.jpg',
-                    '%s:%s' % (COLUMN_MESSAGE, FIELD_MESSAGE_PRIVATE): '1',
-                    '%s:%s' % (COLUMN_MESSAGE, FIELD_MESSAGE_PRIORITY): 'high'
+                    '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_AVATAR): '://example.com/avatar_from_user.jpg',
+                    '{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_AVATAR): '://example.com/avatar_to_user.jpg',
+                    '{0}:{1}'.format(COLUMN_MESSAGE, FIELD_MESSAGE_PRIVATE): '1',
+                    '{0}:{1}'.format(COLUMN_MESSAGE, FIELD_MESSAGE_PRIORITY): 'high'
                 }
 
             batch.update(key, columns)
@@ -370,18 +371,18 @@ class StarbaseClient02TableTest(unittest.TestCase):
             }
         else:
             output = {
-                '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_ID): '123',
-                '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_NAME): 'John Doe',
-                '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_EMAIL): 'john@doe.com',
-                '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_AVATAR): '://example.com/avatar_from_user.jpg',
-                '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_ID): '456',
-                '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_NAME): 'Lorem Ipsum',
-                '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_EMAIL): 'lorem@ipsum.com',
-                '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_AVATAR): '://example.com/avatar_to_user.jpg',
-                '%s:%s' % (COLUMN_MESSAGE, FIELD_MESSAGE_SUBJECT): 'Lorem ipsum',
-                '%s:%s' % (COLUMN_MESSAGE, FIELD_MESSAGE_BODY): 'Lorem ipsum dolor sit amet.',
-                '%s:%s' % (COLUMN_MESSAGE, FIELD_MESSAGE_PRIVATE): '1',
-                '%s:%s' % (COLUMN_MESSAGE, FIELD_MESSAGE_PRIORITY): 'high'
+                '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_ID): '123',
+                '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_NAME): 'John Doe',
+                '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_EMAIL): 'john@doe.com',
+                '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_AVATAR): '://example.com/avatar_from_user.jpg',
+                '{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_ID): '456',
+                '{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_NAME): 'Lorem Ipsum',
+                '{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_EMAIL): 'lorem@ipsum.com',
+                '{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_AVATAR): '://example.com/avatar_to_user.jpg',
+                '{0}:{1}'.format(COLUMN_MESSAGE, FIELD_MESSAGE_SUBJECT): 'Lorem ipsum',
+                '{0}:{1}'.format(COLUMN_MESSAGE, FIELD_MESSAGE_BODY): 'Lorem ipsum dolor sit amet.',
+                '{0}:{1}'.format(COLUMN_MESSAGE, FIELD_MESSAGE_PRIVATE): '1',
+                '{0}:{1}'.format(COLUMN_MESSAGE, FIELD_MESSAGE_PRIORITY): 'high'
             }
 
         # Now testing the data
@@ -410,16 +411,16 @@ class StarbaseClient02TableTest(unittest.TestCase):
 
         for i in xrange(num_rows):
             columns = {
-                '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_ID): str(11 * (i + 1)),
-                '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_NAME): 'John Doe',
-                '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_EMAIL): 'john@doe.net',
-                '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_ID): str(22 * (i + 1)),
-                '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_NAME): 'Lorem Ipsum',
-                '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_EMAIL): 'lorem@ipsum.net',
-                '%s:%s' % (COLUMN_MESSAGE, FIELD_MESSAGE_SUBJECT): 'Lorem ipsum',
-                '%s:%s' % (COLUMN_MESSAGE, FIELD_MESSAGE_BODY): 'Lorem ipsum dolor sit amet.',
+                '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_ID): str(11 * (i + 1)),
+                '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_NAME): 'John Doe',
+                '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_EMAIL): 'john@doe.net',
+                '{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_ID): str(22 * (i + 1)),
+                '{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_NAME): 'Lorem Ipsum',
+                '{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_EMAIL): 'lorem@ipsum.net',
+                '{0}:{1}'.format(COLUMN_MESSAGE, FIELD_MESSAGE_SUBJECT): 'Lorem ipsum',
+                '{0}:{1}'.format(COLUMN_MESSAGE, FIELD_MESSAGE_BODY): 'Lorem ipsum dolor sit amet.',
                 }
-            res.append(self.table.insert('%s%s' % (key, i), columns))
+            res.append(self.table.insert('{0}{1}'.format(key, i), columns))
 
         self.assertEqual(res, [200 for i in xrange(num_rows)])
         return res
@@ -434,14 +435,14 @@ class StarbaseClient02TableTest(unittest.TestCase):
         key = 'row_1_abcdef'
 
         columns = {
-            '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_ID): '110',
-            '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_NAME): 'John Doe',
-            '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_EMAIL): 'john@doe.net',
-            #'%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_ID): '220',
-            #'%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_NAME): 'Lorem Ipsum',
-            #'%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_EMAIL): 'lorem@ipsum.net',
-            #'%s:%s' % (COLUMN_MESSAGE, FIELD_MESSAGE_SUBJECT): 'Lorem ipsum',
-            #'%s:%s' % (COLUMN_MESSAGE, FIELD_MESSAGE_BODY): 'Lorem ipsum dolor sit amet.',
+            '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_ID): '110',
+            '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_NAME): 'John Doe',
+            '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_EMAIL): 'john@doe.net',
+            #'{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_ID): '220',
+            #'{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_NAME): 'Lorem Ipsum',
+            #'{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_EMAIL): 'lorem@ipsum.net',
+            #'{0}:{1}'.format(COLUMN_MESSAGE, FIELD_MESSAGE_SUBJECT): 'Lorem ipsum',
+            #'{0}:{1}'.format(COLUMN_MESSAGE, FIELD_MESSAGE_BODY): 'Lorem ipsum dolor sit amet.',
             }
         res = self.table.insert(key, columns)
         self.assertEqual(res, 200)
@@ -457,14 +458,14 @@ class StarbaseClient02TableTest(unittest.TestCase):
         key = 'row_2_abcdef'
 
         columns = {
-            '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_ID): '110',
-            '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_NAME): 'John Doe',
-            '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_EMAIL): 'john@doe.net',
-            '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_ID): '220',
-            '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_NAME): 'Lorem Ipsum',
-            '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_EMAIL): 'lorem@ipsum.net',
-            '%s:%s' % (COLUMN_MESSAGE, FIELD_MESSAGE_SUBJECT): 'Lorem ipsum',
-            '%s:%s' % (COLUMN_MESSAGE, FIELD_MESSAGE_BODY): 'Lorem ipsum dolor sit amet.',
+            '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_ID): '110',
+            '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_NAME): 'John Doe',
+            '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_EMAIL): 'john@doe.net',
+            '{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_ID): '220',
+            '{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_NAME): 'Lorem Ipsum',
+            '{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_EMAIL): 'lorem@ipsum.net',
+            '{0}:{1}'.format(COLUMN_MESSAGE, FIELD_MESSAGE_SUBJECT): 'Lorem ipsum',
+            '{0}:{1}'.format(COLUMN_MESSAGE, FIELD_MESSAGE_BODY): 'Lorem ipsum dolor sit amet.',
             }
         res = self.table.insert(key, columns)
         self.assertEqual(res, 200)
@@ -512,25 +513,25 @@ class StarbaseClient02TableTest(unittest.TestCase):
         key = 'row_1_abcdef'
 
         columns = {
-            #'%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_ID): '110',
-            #'%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_NAME): 'John Doe',
-            #'%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_EMAIL): 'john@doe.net',
-            '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_ID): '220',
-            '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_NAME): 'Lorem Ipsum',
-            '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_EMAIL): 'lorem@ipsum.net',
-            '%s:%s' % (COLUMN_MESSAGE, FIELD_MESSAGE_SUBJECT): 'Lorem ipsum',
-            '%s:%s' % (COLUMN_MESSAGE, FIELD_MESSAGE_BODY): 'Lorem ipsum dolor sit amet.',
+            #'{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_ID): '110',
+            #'{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_NAME): 'John Doe',
+            #'{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_EMAIL): 'john@doe.net',
+            '{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_ID): '220',
+            '{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_NAME): 'Lorem Ipsum',
+            '{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_EMAIL): 'lorem@ipsum.net',
+            '{0}:{1}'.format(COLUMN_MESSAGE, FIELD_MESSAGE_SUBJECT): 'Lorem ipsum',
+            '{0}:{1}'.format(COLUMN_MESSAGE, FIELD_MESSAGE_BODY): 'Lorem ipsum dolor sit amet.',
             }
 
         output = {
-            '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_ID): '110',
-            '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_NAME): 'John Doe',
-            '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_EMAIL): 'john@doe.net',
-            '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_ID): '220',
-            '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_NAME): 'Lorem Ipsum',
-            '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_EMAIL): 'lorem@ipsum.net',
-            '%s:%s' % (COLUMN_MESSAGE, FIELD_MESSAGE_SUBJECT): 'Lorem ipsum',
-            '%s:%s' % (COLUMN_MESSAGE, FIELD_MESSAGE_BODY): 'Lorem ipsum dolor sit amet.',
+            '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_ID): '110',
+            '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_NAME): 'John Doe',
+            '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_EMAIL): 'john@doe.net',
+            '{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_ID): '220',
+            '{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_NAME): 'Lorem Ipsum',
+            '{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_EMAIL): 'lorem@ipsum.net',
+            '{0}:{1}'.format(COLUMN_MESSAGE, FIELD_MESSAGE_SUBJECT): 'Lorem ipsum',
+            '{0}:{1}'.format(COLUMN_MESSAGE, FIELD_MESSAGE_BODY): 'Lorem ipsum dolor sit amet.',
             }
         res = self.table.insert(key, columns)
 
@@ -568,9 +569,9 @@ class StarbaseClient02TableTest(unittest.TestCase):
         output = []
         for i in xrange(num_rows):
             columns = {
-                '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_ID): str(11 * (i + 1)),
+                '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_ID): str(11 * (i + 1)),
                 }
-            res.append(self.table.remove('%s%s' % (key, i)))
+            res.append(self.table.remove('{0}{1}'.format(key, i)))
             output.append(200)
 
         self.assertEqual(res, output)
@@ -599,16 +600,16 @@ class StarbaseClient02TableTest(unittest.TestCase):
         """
         # Columns to fetch (normal list)
         columns = [
-            '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_ID),
-            #'%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_NAME),
-            #'%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_EMAIL),
+            '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_ID),
+            #'{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_NAME),
+            #'{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_EMAIL),
 
-            '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_ID),
-            #'%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_NAME),
-            #'%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_EMAIL),
+            '{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_ID),
+            #'{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_NAME),
+            #'{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_EMAIL),
 
-            #'%s:%s' % (COLUMN_MESSAGE, FIELD_MESSAGE_SUBJECT),
-            #'%s:%s' % (COLUMN_MESSAGE, FIELD_MESSAGE_BODY),
+            #'{0}:{1}'.format(COLUMN_MESSAGE, FIELD_MESSAGE_SUBJECT),
+            #'{0}:{1}'.format(COLUMN_MESSAGE, FIELD_MESSAGE_BODY),
         ]
 
         # Get table row data
@@ -724,16 +725,16 @@ class StarbaseClient02TableTest(unittest.TestCase):
 
             for i in xrange(num_rows):
                 columns = {
-                    '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_ID): str(11 * (i + 1)),
-                    '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_NAME): 'John Doe',
-                    '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_EMAIL): 'john@doe.net',
-                    '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_ID): str(22 * (i + 1)),
-                    '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_NAME): 'Lorem Ipsum',
-                    '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_EMAIL): 'lorem@ipsum.net',
-                    '%s:%s' % (COLUMN_MESSAGE, FIELD_MESSAGE_SUBJECT): 'Lorem ipsum',
-                    '%s:%s' % (COLUMN_MESSAGE, FIELD_MESSAGE_BODY): 'Lorem ipsum dolor sit amet.',
+                    '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_ID): str(11 * (i + 1)),
+                    '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_NAME): 'John Doe',
+                    '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_EMAIL): 'john@doe.net',
+                    '{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_ID): str(22 * (i + 1)),
+                    '{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_NAME): 'Lorem Ipsum',
+                    '{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_EMAIL): 'lorem@ipsum.net',
+                    '{0}:{1}'.format(COLUMN_MESSAGE, FIELD_MESSAGE_SUBJECT): 'Lorem ipsum',
+                    '{0}:{1}'.format(COLUMN_MESSAGE, FIELD_MESSAGE_BODY): 'Lorem ipsum dolor sit amet.',
                     }
-                results.append(self.table.insert('%s%s' % (key, i), columns))
+                results.append(self.table.insert('{0}{1}'.format(key, i), columns))
             return results
 
         import simple_timer
@@ -750,10 +751,10 @@ class StarbaseClient02TableTest(unittest.TestCase):
 
         print_('test_20_table_put_multiple_column_data_in_multithreading')
         print_("==============================")
-        print_('%s records inserted in total' % (number_of_threads * NUM_ROWS))
-        print_("total number of threads %s" % number_of_threads)
-        print_("%s seconds elapsed" % timer.stop_and_return_duration())
-        print_("making it %s of records inserted per second\n" % (number_of_threads * NUM_ROWS / timer.duration))
+        print_('{0} records inserted in total'.format(number_of_threads * NUM_ROWS))
+        print_("total number of threads {0}".format(number_of_threads))
+        print_("{0} seconds elapsed".format(timer.stop_and_return_duration()))
+        print_("making it {0} of records inserted per second\n".format(number_of_threads * NUM_ROWS / timer.duration))
 
     @print_info
     def test_21_table_delete_row(self):
@@ -902,13 +903,13 @@ class StarbaseClient02TableTest(unittest.TestCase):
         self.sample_4 = {
             'Row': {
                 'Cell': [
-                    {'column': '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_ID), \
+                    {'column': '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_ID), \
                      'timestamp': '1369247627546', '$': '123'},
-                    {'column': '%s:%s' % (COLUMN_FROM_USER, FIELD_FROM_USER_EMAIL), \
+                    {'column': '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_EMAIL), \
                      'timestamp': '1369247627546', '$': 'john@doe.com'},
-                    {'column': '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_ID), \
+                    {'column': '{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_ID), \
                      'timestamp': '1369247627546', '$': '345'},
-                    {'column': '%s:%s' % (COLUMN_TO_USER, FIELD_TO_USER_EMAIL), \
+                    {'column': '{0}:{1}'.format(COLUMN_TO_USER, FIELD_TO_USER_EMAIL), \
                      'timestamp': '1369247627546', '$': 'lorem@ipsum.com'},
                 ],
                 'key': 'row81d70d7c-8f30-42fd-be1c-772308b25889908'
