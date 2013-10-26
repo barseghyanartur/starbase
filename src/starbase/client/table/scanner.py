@@ -8,7 +8,7 @@ import base64
 
 from starbase.json_decoder import json_decode
 from starbase.client.transport import HttpRequest
-from starbase.client.transport.methods import PUT, POST, GET
+from starbase.client.transport.methods import PUT, POST, GET, DELETE
 
 class Scanner(object):
     """
@@ -45,7 +45,7 @@ class Scanner(object):
         Delete scanner.
         """
         url = '%(table_name)s/scanner/%(scanner_id)s' % {'table_name': self.table.name, 'scanner_id': self.id}
-        response = HttpRequest(connection=self.connection, url=url).get_response()
+        response = HttpRequest(connection=self.table.connection, url=url, method=DELETE).get_response()
         return response.status_code
 
     def results(self, with_row_id=False, raw=False, perfect_dict=None):

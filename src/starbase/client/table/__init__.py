@@ -317,8 +317,9 @@ class Table(object):
         if perfect_dict is None:
             perfect_dict = self.connection.perfect_dict
 
-        res = self._scanner(filter_string=filter_string, data=scanner_config) \
-                  .results(perfect_dict=perfect_dict, with_row_id=with_row_id, raw=raw)
+        scanner = self._scanner(filter_string=filter_string, data=scanner_config)
+        res = scanner.results(perfect_dict=perfect_dict, with_row_id=with_row_id, raw=raw)
+        scanner.delete ()
 
         if flat:
             res = list(res)
