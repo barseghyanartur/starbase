@@ -58,9 +58,10 @@ class Connection(object):
             'secure': 's' if self.secure else '',
             'host': self.host,
             'port': self.port,
-            'user_credentials': ("{0}:{1}@".format(self.user, self.password)) if (self.user and self.password) else ''
+            #'user_credentials': ("{0}:{1}@".format(self.user, self.password)) if (self.user and self.password) else ''
         }
-        self.base_url = 'http{secure}://{user_credentials}{host}:{port}/'.format(**data)
+        #self.base_url = 'http{secure}://{user_credentials}{host}:{port}/'.format(**data)
+        self.base_url = 'http{secure}://{host}:{port}/'.format(**data)
 
     @property
     def version(self):

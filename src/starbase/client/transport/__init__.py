@@ -6,6 +6,7 @@ __all__ = ('HttpRequest', 'HttpResponse')
 
 import json
 import requests
+from requests.auth import HTTPBasicAuth
 
 from six import string_types
 
@@ -95,15 +96,26 @@ class HttpRequest(object):
         else:
             data = json.dumps(data)
 
+        request_data = {
+            'url': endpoint_url,
+            'headers': headers
+        }
+
+        if DELETE != method:
+            request_data['data'] = data
+
+        if self.__connection.user and self.__connection.password:
+            request_data['auth'] = HTTPBasicAuth(self.__connection.user, self.__connection.password)
+
         # For the sake of simplicity the `requests` library replaced the `urllib2`.
         if GET == method:
-            self.response = requests.get(endpoint_url, data=data, headers=headers)
+            self.response = requests.get(**request_data)
         elif PUT == method:
-            self.response = requests.put(endpoint_url, data=data, headers=headers)
+            self.response = requests.put(**request_data)
         elif POST == method:
-            self.response = requests.post(endpoint_url, data=data, headers=headers)
+            self.response = requests.post(**request_data)
         elif DELETE == method:
-            self.response = requests.delete(endpoint_url, headers=headers)
+            self.response = requests.delete(**request_data)
 
     def get_response(self):
         """

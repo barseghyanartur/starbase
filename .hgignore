@@ -2,6 +2,7 @@ syntax: regexp
 \.pyc$
 \.hgignore~
 \.gitignore~
+\.travis.yml~
 \.git
 \.tox
 
