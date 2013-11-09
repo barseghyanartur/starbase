@@ -4,7 +4,7 @@ given in `keys_to_skip`. It's also possible to give a custom `decoder` instead o
 """
 
 __title__ = 'starbase.json_decoder'
-__version__ = '0.2'
+__version__ = '0.2.4'
 __build__ = 0x000002
 __author__ = 'Artur Barseghyan'
 __all__ = ('json_decode',)

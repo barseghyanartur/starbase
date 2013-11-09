@@ -6,7 +6,7 @@ try:
 except:
   readme = ''
 
-version = '0.2.3'
+version = '0.2.4'
 
 setup(
     name = 'starbase',
@@ -36,7 +36,6 @@ setup(
     packages = find_packages(where='./src'),
     include_package_data = True,
     install_requires = [
-        #'six==1.4.1',
         'six>=1.1.0',
         'ordereddict==1.1',
         'requests==1.2.3',

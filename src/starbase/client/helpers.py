@@ -1,5 +1,5 @@
 __title__ = 'starbase.client.helpers'
-__version__ = '0.2'
+__version__ = '0.2.4'
 __build__ = 0x000002
 __author__ = 'Artur Barseghyan'
 __all__ = ('build_json_data',)
@@ -42,7 +42,7 @@ def build_json_data(row, columns, timestamp=None, encode_content=False, with_row
         if ':' in columns_keys[0]:
             # Single column case
             if 1 == len(columns):
-                key, value = columns.items()[0]
+                key, value = list(columns.items())[0]
 
                 if encode_content:
                     if PY3:

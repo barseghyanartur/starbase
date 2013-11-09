@@ -1,6 +1,6 @@
 __title__ = 'starbase.content_types'
-__version__ = '0.1'
-__build__ = 0x000001
+__version__ = '0.2.4'
+__build__ = 0x000002
 __author__ = 'Artur Barseghyan'
 
 CONTENT_TYPE_JSON = 'json'
