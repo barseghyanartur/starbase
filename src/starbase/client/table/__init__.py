@@ -344,7 +344,7 @@ class Table(object):
 
         if 1 == len(columns):
             cf = list(columns.keys())[0]
-            url = "{table_name}/{row}/{cf}".format(table_name=self.name, row=row, cf=cf)
+            url = "{table_name}/{row}/{cf}".format(table_name=self.name, row=row_hash, cf=cf)
         else:
             url = "{table_name}/{row}".format(table_name=self.name, row=row_hash)
 
