@@ -53,7 +53,7 @@ class Batch(object):
         self._stack.append(data)
 
         if self.size and len(self._stack) > self.size:
-            self.process()
+            self.commit()
 
     def insert(self, row, columns, timestamp=None):
         return self._put(row, columns, timestamp=timestamp, encode_content=True)
