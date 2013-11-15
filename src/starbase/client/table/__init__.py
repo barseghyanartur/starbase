@@ -1,6 +1,4 @@
-__title__ = 'starbase.client.table'
-__version__ = '0.2.4'
-__build__ = 0x000002
+__title__ = 'starbase.client.table.__init__'
 __author__ = 'Artur Barseghyan'
 __all__ = ('Table',)
 

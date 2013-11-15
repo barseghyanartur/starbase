@@ -1,3 +1,7 @@
+__title__ = 'starbase.client.table.query'
+__author__ = 'Artur Barseghyan'
+__all__ = ('QuerySet', 'Q')
+
 """
 This would be the code base for filtering in `starbase`. The `fetch_all_rows` method would be then cleaned
 and would just return all rows (perhaps paginated results?)

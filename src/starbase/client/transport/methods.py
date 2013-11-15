@@ -1,7 +1,6 @@
 __title__ = 'starbase.client.transport.methods'
-__version__ = '0.2.4'
-__build__ = 0x000002
 __author__ = 'Artur Barseghyan'
+__all__ = ('GET', 'PUT', 'POST', 'DELETE', 'METHODS', 'DEFAULT_METHOD')
 
 GET = 'GET'
 PUT = 'PUT'
