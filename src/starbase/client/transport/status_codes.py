@@ -1,5 +1,7 @@
 __title__ = 'starbase.client.transport.status_codes'
 __author__ = 'Artur Barseghyan'
+__copyright__ = 'Copyright (c) 2013 Artur Barseghyan'
+__license__ = 'GPL 2.0/LGPL 2.1'
 
 # See the full list (http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html).
 STATUS_CODE_OK = 200

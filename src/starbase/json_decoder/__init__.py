@@ -5,6 +5,8 @@ given in `keys_to_skip`. It's also possible to give a custom `decoder` instead o
 
 __title__ = 'starbase.json_decoder'
 __author__ = 'Artur Barseghyan'
+__copyright__ = 'Copyright (c) 2013 Artur Barseghyan'
+__license__ = 'GPL 2.0/LGPL 2.1'
 __all__ = ('json_decode',)
 
 from six import PY3
@@ -14,8 +16,11 @@ import base64
 DEBUG = False
 
 if PY3:
-	base64.decodestring = base64.decodebytes
-def json_decode(json_data, keys_to_bypass_decoding=['timestamp'], keys_to_skip=[], decoder=base64.decodestring):
+	decodestring = base64.decodebytes
+else:
+    decodestring = base64.decodestring
+
+def json_decode(json_data, keys_to_bypass_decoding=['timestamp'], keys_to_skip=[], decoder=decodestring):
     """
     Recursively decodes values of entire dictionary (JSON) using `base64.decodestring`. Optionally ignores (does not
     include in the final dictionary) keys given in `keys_to_skip`.

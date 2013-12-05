@@ -1,5 +1,7 @@
 __title__ = 'starbase.content_types'
 __author__ = 'Artur Barseghyan'
+__copyright__ = 'Copyright (c) 2013 Artur Barseghyan'
+__license__ = 'GPL 2.0/LGPL 2.1'
 
 CONTENT_TYPE_JSON = 'json'
 MEDIA_TYPE_JSON = 'application/json'

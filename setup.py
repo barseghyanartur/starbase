@@ -6,7 +6,7 @@ try:
 except:
   readme = ''
 
-version = '0.2.5'
+version = '0.2.6'
 
 setup(
     name = 'starbase',
@@ -39,6 +39,6 @@ setup(
         'six>=1.1.0',
         'ordereddict==1.1',
         'requests==1.2.3',
-        'simple-timer==0.1',
+        'simple-timer==0.2',
     ]
 )
