@@ -7,14 +7,26 @@ import threading
 import multiprocessing
 import unittest
 import uuid
+import shutil
+import os
 
-from six import text_type, PY3, print_
+PROJECT_DIR = lambda base : os.path.abspath(os.path.join(os.path.dirname(__file__), base).replace('\\','/'))
+
+from six import text_type, PY3, print_, BytesIO as StringIO
 
 try:
     from six.moves import range as xrange
 except ImportError:
     if PY3:
         xrange = range
+
+try:
+    from six.moves.urllib.request import build_opener
+except ImportError:
+    if PY3:
+        from urllib.request import build_opener
+    else:
+        from urllib2 import build_opener
 
 from starbase import Connection, Table
 
@@ -1027,6 +1039,40 @@ class StarbaseClient02TableTest(unittest.TestCase):
 
         return (r1, r2, r3, r4)
 
+    def __insert_binary_file(self, url):
+        """
+        Insert a binary file. First download the file and then insert.
+        """
+        opener = build_opener()
+        page = opener.open(url)
+        binary_image = page.read()
+        return binary_image
+
+    @print_info
+    def test_25_insert_binary_file(self):
+        """
+        Store binary file.
+        """
+        # Write binary file into HBase
+        url = 'https://raw.github.com/barseghyanartur/delusionalinsanity.images/master/images/32013_394119419025_539104025_3916154_3598710_n.jpg'
+        binary_image = self.__insert_binary_file(url)
+
+        data = {
+            COLUMN_MESSAGE: {'text': 'John', 'new': 'yes', 'image': binary_image},
+            COLUMN_FROM_USER: {'id': '555', 'email': 'fr@m.com'},
+        }
+
+        row_key = 'image_test_1'
+        write_res = self.table.insert(row_key, data)
+
+        self.assertEqual(write_res, 200)
+
+        # Get file from HBase and compare source
+        read_res = self.table.fetch(row_key, COLUMN_MESSAGE, ['image'])
+        self.assertEqual(read_res[COLUMN_MESSAGE]['image'], binary_image)
+
+        f = open('file.jpg', 'wb')
+        f.write(read_res[COLUMN_MESSAGE]['image'])
 
 if __name__ == '__main__':
     unittest.main()
