@@ -13,6 +13,8 @@ import base64
 
 DEBUG = False
 
+if PY3:
+	base64.decodestring = base64.decodebytes
 def json_decode(json_data, keys_to_bypass_decoding=['timestamp'], keys_to_skip=[], decoder=base64.decodestring):
     """
     Recursively decodes values of entire dictionary (JSON) using `base64.decodestring`. Optionally ignores (does not
@@ -124,7 +126,7 @@ def json_decode(json_data, keys_to_bypass_decoding=['timestamp'], keys_to_skip=[
             if isinstance(value, string_types):
                 if key not in keys_to_bypass_decoding:
                     if PY3:
-                        decoded_json_data.update({key: decoder(value.encode('utf8')).decode('utf8')})
+                        decoded_json_data.update({key: decoder(value.encode()).decode()})
                     else:
                         decoded_json_data.update({key: decoder(value)})
                 else:
