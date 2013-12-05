@@ -1046,8 +1046,8 @@ class StarbaseClient02TableTest(unittest.TestCase):
         """
         opener = build_opener()
         page = opener.open(url)
-        binary_image = binascii.b2a_hex(page.read())
-        return binary_image.decode()
+        image = binascii.b2a_hex(page.read())
+        return image.decode()
 
     @print_info
     def test_25_insert_binary_file(self):
@@ -1056,10 +1056,10 @@ class StarbaseClient02TableTest(unittest.TestCase):
         """
         # Write binary file into HBase
         url = 'https://raw.github.com/barseghyanartur/delusionalinsanity.images/master/images/32013_394119419025_539104025_3916154_3598710_n.jpg'
-        binary_image = self.__insert_binary_file(url)
+        image = self.__insert_binary_file(url)
 
         data = {
-            COLUMN_MESSAGE: {'text': 'John', 'new': 'yes', 'image': binary_image},
+            COLUMN_MESSAGE: {'text': 'John', 'new': 'yes', 'image': image},
             COLUMN_FROM_USER: {'id': '555', 'email': 'fr@m.com'},
         }
 
@@ -1071,7 +1071,7 @@ class StarbaseClient02TableTest(unittest.TestCase):
         # Get file from HBase and compare source
         read_res = self.table.fetch(row_key, COLUMN_MESSAGE, ['image'])
 
-        self.assertEqual(read_res[COLUMN_MESSAGE]['image'], binary_image)
+        self.assertEqual(read_res[COLUMN_MESSAGE]['image'], image)
 
         f = open('file.jpg', 'wb')
         f.write(binascii.a2b_hex(read_res[COLUMN_MESSAGE]['image']))
