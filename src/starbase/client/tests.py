@@ -400,14 +400,8 @@ class StarbaseClient02TableTest(unittest.TestCase):
         """
         return self.test_06_table_batch_post_multiple_column_data(process_number=process_number, perfect_dict=True)
 
-    @print_info
-    def test_08_table_put_column_data(self, process_number=0):
-        """
-        Insert single column data into a single row of HBase using starbase REST API.
-        """
-        key = 'row_1_'
+    def __table_put_column_data_2(self, key, num_rows):
         res = []
-        num_rows = NUM_ROWS
 
         for i in xrange(num_rows):
             columns = {
@@ -421,6 +415,18 @@ class StarbaseClient02TableTest(unittest.TestCase):
                 '{0}:{1}'.format(COLUMN_MESSAGE, FIELD_MESSAGE_BODY): 'Lorem ipsum dolor sit amet.',
                 }
             res.append(self.table.insert('{0}{1}'.format(key, i), columns))
+
+        return res
+
+    @print_info
+    def test_08_table_put_column_data(self, process_number=0):
+        """
+        Insert single column data into a single row of HBase using starbase REST API.
+        """
+        key = 'row_1_'
+        num_rows = NUM_ROWS
+
+        res = self.__table_put_column_data_2(key, num_rows)
 
         self.assertEqual(res, [200 for i in xrange(num_rows)])
         return res
@@ -448,15 +454,7 @@ class StarbaseClient02TableTest(unittest.TestCase):
         self.assertEqual(res, 200)
         return res
 
-    @print_info
-    def test_10_table_put_column_data(self, process_number=0):
-        """
-        Insert multiple column data into a single row of HBase using starbase REST API.
-
-        ..note: Used in ``test_11_get_single_row_with_all_columns`` and ``test_08b_get_single_row_with_all_columns``.
-        """
-        key = 'row_2_abcdef'
-
+    def __table_put_column_data(self, key='row_2_abcdef'):
         columns = {
             '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_ID): '110',
             '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_NAME): 'John Doe',
@@ -468,14 +466,28 @@ class StarbaseClient02TableTest(unittest.TestCase):
             '{0}:{1}'.format(COLUMN_MESSAGE, FIELD_MESSAGE_BODY): 'Lorem ipsum dolor sit amet.',
             }
         res = self.table.insert(key, columns)
+        return res
+
+    @print_info
+    def test_10_table_put_column_data(self, process_number=0):
+        """
+        Insert multiple column data into a single row of HBase using starbase REST API.
+
+        ..note: Used in ``test_11_get_single_row_with_all_columns`` and ``test_08b_get_single_row_with_all_columns``.
+        """
+        key = 'row_2_abcdef'
+
+        res = self.__table_put_column_data(key)
         self.assertEqual(res, 200)
         return res
 
     @print_info
-    def test_11_get_single_row_with_all_columns(self, row_key='row_2_abcdef'):
+    def test_11_get_single_row_with_all_columns(self, row_key='row_2_abcdef__11'):
         """
         Fetches a single row from HBase using starbase REST API with all columns of that row as simple dict.
         """
+        self.__table_put_column_data(row_key)
+
         res = self.table.fetch(row=row_key, perfect_dict=False)
         output = {
             'from_user:id': '110',
@@ -491,10 +503,12 @@ class StarbaseClient02TableTest(unittest.TestCase):
         return res
 
     @print_info
-    def test_16_get_single_row_with_all_columns_as_perfect_dict(self, row_key='row_2_abcdef'):
+    def test_16_get_single_row_with_all_columns_as_perfect_dict(self, row_key='row_2_abcdef__16'):
         """
         Fetches a single row from HBase using starbase REST API with all columns of that row as perfect dict.
         """
+        self.__table_put_column_data(row_key)
+
         res = self.table.fetch(row=row_key, perfect_dict=True)
         output = {
             'to_user': {'id': '220', 'name': 'Lorem Ipsum', 'email': 'lorem@ipsum.net'},
@@ -510,6 +524,8 @@ class StarbaseClient02TableTest(unittest.TestCase):
         Updates (POST) data of a single row of HBase using starbase REST API. Updates data set in
         ``test_09_table_put_column_data``.
         """
+        # TODO: This is not a well done test.
+
         key = 'row_1_abcdef'
 
         columns = {
@@ -543,10 +559,12 @@ class StarbaseClient02TableTest(unittest.TestCase):
         return res
 
     @print_info
-    def test_14_get_single_row_with_all_columns(self, row_key='row_1_abcdef'):
+    def test_14_get_single_row_with_all_columns(self, row_key='row_1_abcdef__14'):
         """
         Fetches a single row from HBase using starbase REST API with all columns of that row.
         """
+        self.__table_put_column_data(row_key)
+
         res = self.table.fetch(row=row_key, perfect_dict=True)
         output = {
             'to_user': {'id': '220', 'email': 'lorem@ipsum.net', 'name': 'Lorem Ipsum'},
@@ -563,14 +581,17 @@ class StarbaseClient02TableTest(unittest.TestCase):
         Insert single column data into a single row of HBase using starbase REST API. Deletes data set by
         ``test_08_table_put_column_data`` (all except the last record)..
         """
-        key = 'row_1_'
+        key = 'row_1_15_'
         res = []
         num_rows = NUM_ROWS - 1
+
+        res2 = self.__table_put_column_data_2(key, num_rows)
+
         output = []
         for i in xrange(num_rows):
-            columns = {
-                '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_ID): str(11 * (i + 1)),
-                }
+            #columns = {
+            #    '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_ID): str(11 * (i + 1)),
+            #    }
             res.append(self.table.remove('{0}{1}'.format(key, i)))
             output.append(200)
 
@@ -594,10 +615,14 @@ class StarbaseClient02TableTest(unittest.TestCase):
         return res
 
     @print_info
-    def test_17_get_single_row_with_selective_columns(self, row_key='row_1_9'):
+    def test_17_get_single_row_with_selective_columns(self, row_key='row_1_9_17'):
         """
         Fetches a single row selective columns from HBase using starbase REST API.
         """
+        # TODO: This is not a well done test.
+
+        self.__table_put_column_data(row_key)
+
         # Columns to fetch (normal list)
         columns = [
             '{0}:{1}'.format(COLUMN_FROM_USER, FIELD_FROM_USER_ID),
@@ -613,7 +638,7 @@ class StarbaseClient02TableTest(unittest.TestCase):
         ]
 
         # Get table row data
-        res = self.table.fetch(row=TEST_ROW_KEY_1, columns=columns, perfect_dict=True)
+        res = self.table.fetch(row=row_key, columns=columns, perfect_dict=True)
 
         return res
 
@@ -664,9 +689,14 @@ class StarbaseClient02TableTest(unittest.TestCase):
         """
         Get all rows.
         """
+        data1 = {'from_user': {'id': 'ku', 'name': 'tra'}, 'to_user': {'order': '2', 'she': '1'}}
+        self.table.insert('papa', data1)
+        data2 = {'from_user': {'id': 'zu', 'name': 'za'}, 'to_user': {'genius': 'yep', 'she': 'likes'}}
+        self.table.insert('mama', data2)
+
         res = list(self.table.fetch_all_rows(perfect_dict=perfect_dict))
-        self.assertEqual(res[0]['to_user'], {'id': '220', 'email': 'lorem@ipsum.net', 'name': 'Lorem Ipsum'})
-        self.assertEqual(res[1]['from_user'], {'id': '110', 'name': 'John Doe', 'email': 'john@doe.net'})
+        self.assertEqual(res[0]['to_user'], data2['to_user'])
+        self.assertEqual(res[1]['from_user'], data1['from_user'])
         return res
 
     @print_info
@@ -674,19 +704,23 @@ class StarbaseClient02TableTest(unittest.TestCase):
         """
         Get all rows with filter string
         """
-        row_filter_string = '{"type": "RowFilter", "op": "EQUAL", "comparator": {"type": "RegexStringComparator", "value": "^row_1.+" }}'
+        data = {
+            'row_1_9': {'to_user': {'email': 'lorem@ipsum.net', 'name': 'Lorem Ipsum', 'id': '220'},
+            'message': {'body': 'Lorem ipsum dolor sit amet.', 'subject': 'Lorem ipsum'},
+            'from_user': {'email': 'john@doe.net', 'name': 'John Doe', 'id': '110'}}
+        }
+
+        key_prefix = 'pow_1'
+
+        for i in xrange(20):
+            self.table.insert('{0}_{1}'.format(key_prefix, i), data)
+
+        row_filter_string = '{{"type": "RowFilter", "op": "EQUAL", "comparator": {{"type": "RegexStringComparator", "value": "^{0}.+" }}}}'.format(key_prefix)
 
         res = list(self.table.fetch_all_rows(with_row_id=True, perfect_dict=perfect_dict, filter_string=row_filter_string))
 
         for row in res:
-            self.assertEqual(
-                row,
-                {
-                    'row_1_9': {'to_user': {'email': 'lorem@ipsum.net', 'name': 'Lorem Ipsum', 'id': '220'},
-                    'message': {'body': 'Lorem ipsum dolor sit amet.', 'subject': 'Lorem ipsum'},
-                    'from_user': {'email': 'john@doe.net', 'name': 'John Doe', 'id': '110'}}
-                }
-                )
+            self.assertEqual(row, data)
             break
 
         return res
@@ -696,19 +730,23 @@ class StarbaseClient02TableTest(unittest.TestCase):
         """
         Get all rows with scanner config
         """
-        scanner_config = '<Scanner maxVersions="1"><filter>{"op":"EQUAL", "type":"RowFilter", "comparator":{"value":"^row_1.+","type":"RegexStringComparator"}}</filter></Scanner>'
+        data = {
+            'row_1_9_19': {'to_user': {'email': 'lorem@ipsum.net', 'name': 'Lorem Ipsum', 'id': '220'},
+            'message': {'body': 'Lorem ipsum dolor sit amet.', 'subject': 'Lorem ipsum'},
+            'from_user': {'email': 'john@doe.net', 'name': 'John Doe', 'id': '110'}}
+        }
+
+        key_prefix = 'bow_1'
+
+        for i in xrange(20):
+            self.table.insert('{0}_{1}'.format(key_prefix, i), data)
+
+        scanner_config = '<Scanner maxVersions="1"><filter>{{"op":"EQUAL", "type":"RowFilter", "comparator":{{"value":"^{0}.+","type":"RegexStringComparator"}}}}</filter></Scanner>'.format(key_prefix)
 
         res = list(self.table.fetch_all_rows(with_row_id=True, perfect_dict=perfect_dict, scanner_config=scanner_config))
 
         for row in res:
-            self.assertEqual(
-                row,
-                {
-                    'row_1_9': {'to_user': {'email': 'lorem@ipsum.net', 'name': 'Lorem Ipsum', 'id': '220'},
-                    'message': {'body': 'Lorem ipsum dolor sit amet.', 'subject': 'Lorem ipsum'},
-                    'from_user': {'email': 'john@doe.net', 'name': 'John Doe', 'id': '110'}}
-                }
-                )
+            self.assertEqual(row, data)
             break
 
         return res
