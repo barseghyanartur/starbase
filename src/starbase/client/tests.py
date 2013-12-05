@@ -9,6 +9,7 @@ import unittest
 import uuid
 import shutil
 import os
+import binascii
 
 PROJECT_DIR = lambda base : os.path.abspath(os.path.join(os.path.dirname(__file__), base).replace('\\','/'))
 
@@ -1045,8 +1046,8 @@ class StarbaseClient02TableTest(unittest.TestCase):
         """
         opener = build_opener()
         page = opener.open(url)
-        binary_image = page.read()
-        return binary_image
+        binary_image = binascii.b2a_hex(page.read())
+        return binary_image.decode()
 
     @print_info
     def test_25_insert_binary_file(self):
@@ -1069,10 +1070,11 @@ class StarbaseClient02TableTest(unittest.TestCase):
 
         # Get file from HBase and compare source
         read_res = self.table.fetch(row_key, COLUMN_MESSAGE, ['image'])
+
         self.assertEqual(read_res[COLUMN_MESSAGE]['image'], binary_image)
 
         f = open('file.jpg', 'wb')
-        f.write(read_res[COLUMN_MESSAGE]['image'])
+        f.write(binascii.a2b_hex(read_res[COLUMN_MESSAGE]['image']))
 
 if __name__ == '__main__':
     unittest.main()
