@@ -8,12 +8,12 @@ Base on MoSCoW principle. Must haves and should haves are planned to be worked o
 
 Must haves
 ------------------------------------
++ Lower version of six. Get rid of PY2 checks or check for the version of six and use bundled version of
+  it (1.4.1) in case if version installed is lower than the version required.
 - Scanning support.
 - Syntax globbing.
-- Update tests. Include tests for Batch insert. Move some code parts into separate private methods which are used
-  in tests.
-+ Lower version of six. Get rid of PY2 checks or check for the version of six and use bundled version of 
-  it (1.4.1) in case if version installed is lower than the version required.
+- Update tests. Include tests for Batch insert. Move some code parts into separate private methods which 
+  are used in tests.
 
 Should haves
 ------------------------------------
