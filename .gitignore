@@ -24,6 +24,7 @@ src/starbase/requirements.txt
 src/starbase/server/
 src/starbase/conf.py
 MANIFEST.in~
+file.jpg
 src/starbase/client/__init__.rst
 hadoop/
 conf.py.dist

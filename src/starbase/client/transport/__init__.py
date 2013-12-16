@@ -70,8 +70,9 @@ class HttpRequest(object):
     :param dict data:
     :param bool decode_content: If set to True, response content is decoded.
     :param str method:
+    :param bool fail_silently:
     """
-    def __init__(self, connection, url='', data={}, decode_content=False, method=DEFAULT_METHOD):
+    def __init__(self, connection, url='', data={}, decode_content=False, method=DEFAULT_METHOD, fail_silently=True):
         """
         See the docs above.
         """
@@ -81,6 +82,7 @@ class HttpRequest(object):
         self.url = url
         self.data = data
         self.decode_content = decode_content
+        self.fail_silently = fail_silently
         headers = {
             'Accept': str(self.__connection.content_type),
             'Content-type': str(self.__connection.content_type) + '; charset=UTF-8'
@@ -124,6 +126,9 @@ class HttpRequest(object):
         response_content = None
 
         response_raw = self.response
+
+        if not self.fail_silently:
+            response_raw.raise_for_status()
 
         if self.__connection.content_type == MEDIA_TYPE_JSON:
             try:

@@ -1,5 +1,5 @@
 __title__ = 'starbase.__init__'
-__version__ = '0.2.6'
+__version__ = '0.2.7'
 __build__ = 0x000002
 __author__ = 'Artur Barseghyan'
 __copyright__ = 'Copyright (c) 2013 Artur Barseghyan'

@@ -9,7 +9,7 @@ import json
 
 from six import string_types, PY3
 
-from starbase.exceptions import InvalidArguments
+from starbase.exceptions import InvalidArguments, ParseError, DoesNotExist
 from starbase.content_types import DEFAULT_CONTENT_TYPE
 from starbase.defaults import PERFECT_DICT
 from starbase.client.transport import HttpRequest
@@ -198,7 +198,7 @@ class Table(object):
                                with_row_declaration=with_row_declaration)
 
     def _get(self, row, columns=None, timestamp=None, decode_content=True, number_of_versions=None, raw=False, \
-            perfect_dict=None):
+             perfect_dict=None, fail_silently=True):
         """
         Retrieves one or more cells from a full row, or one or more specified columns in the row, with optional
         filtering via timestamp, and an optional restriction on the maximum number of versions to return.
@@ -218,7 +218,7 @@ class Table(object):
         :param bool raw:
         :return dict:
         """
-        if not self.exists():
+        if not self.exists(fail_silently=fail_silently):
             return None
 
         if perfect_dict is None:
@@ -249,10 +249,14 @@ class Table(object):
                 res = Table._extract_usable_data(response_content, perfect_dict=perfect_dict, with_row_id=False)
                 if isinstance(res, (list, tuple)) and 1 == len(res):
                     return res[0]
-            except:
-                pass
+                if not fail_silently:
+                    raise ParseError("No usable data found in HTTP response.")
+            except Exception as e:
+                if not fail_silently:
+                    raise ParseError("Failed to parse the HTTP response. Error details: {0}".format(str(e)))
 
-    def fetch(self, row, columns=None, timestamp=None, number_of_versions=None, raw=False, perfect_dict=None):
+    def fetch(self, row, columns=None, timestamp=None, number_of_versions=None, raw=False, perfect_dict=None, \
+              fail_silently=True):
         """
         Fetches a single row from table.
 
@@ -290,9 +294,11 @@ class Table(object):
         >>> table.fetch('row1', {'column3': ['gender', 'favourite_book'], 'column2': ['age']})
         """
         return self._get(row, columns=columns, timestamp=timestamp, decode_content=True, \
-                         number_of_versions=number_of_versions, raw=False, perfect_dict=perfect_dict)
+                         number_of_versions=number_of_versions, raw=False, \
+                         perfect_dict=perfect_dict, fail_silently=fail_silently)
 
-    def fetch_all_rows(self, with_row_id=False, raw=False, perfect_dict=None, flat=False, filter_string=None, scanner_config=''):
+    def fetch_all_rows(self, with_row_id=False, raw=False, perfect_dict=None, flat=False, filter_string=None, \
+                       scanner_config='', fail_silently=True):
         """
         Fetches all table rows.
 
@@ -311,7 +317,7 @@ class Table(object):
         >>>            filter_string = row_filter_string
         >>>            )
         """
-        if not self.exists():
+        if not self.exists(fail_silently=fail_silently):
             return None
 
         if perfect_dict is None:
@@ -375,7 +381,7 @@ class Table(object):
 
         return '/'.join(parts)
 
-    def _put(self, row, columns, timestamp=None, encode_content=True):
+    def _put(self, row, columns, timestamp=None, encode_content=True, fail_silently=True):
         """
         Cell store (single or multiple). If not successful, returns appropriate HTTP error status code. If
         successful, returns HTTP 200 status.
@@ -385,9 +391,10 @@ class Table(object):
         :param str row:
         :param dict columns:
         :param bool encode_content: Better be True, because otherwise values may not be submitted correctly.
+        :param bool fail_silently:
         :return int:
         """
-        if not self.exists():
+        if not self.exists(fail_silently=fail_silently):
             return None
 
         url = self._build_put_url(row, columns)
@@ -400,12 +407,13 @@ class Table(object):
             url = url,
             data = data,
             decode_content = False,
-            method = PUT
+            method = PUT,
+            fail_silently = fail_silently
             ).get_response()
 
         return response.status_code
 
-    def insert(self, row, columns, timestamp=None):
+    def insert(self, row, columns, timestamp=None, fail_silently=True):
         """
         Inserts a single row into a table.
 
@@ -424,7 +432,7 @@ class Table(object):
         >>> table.insert('row1', {'column1': {'id': '1', 'name': 'Some name'}, 'column2': {'id': '2', 'age': '32'}})
         >>> table.insert('row2', {'column3': {'gender': 'male', 'favourite_book': 'Steppenwolf'}})
         """
-        return self._put(row=row, columns=columns, timestamp=timestamp)
+        return self._put(row=row, columns=columns, timestamp=timestamp, fail_silently=fail_silently)
 
     def _scanner(self, batch_size=None, start_row=None, end_row=None, start_time=None, end_time=None, \
                  filter_string=None, data=''):
@@ -449,7 +457,7 @@ class Table(object):
 
         return Scanner(table=self, url=scanner_url)
 
-    def _post(self, row, columns, timestamp=None, encode_content=True):
+    def _post(self, row, columns, timestamp=None, encode_content=True, fail_silently=True):
         """
         Update (POST) operation.
 
@@ -457,9 +465,10 @@ class Table(object):
         :param dict columns:
         :param timestamp: Not yet used.
         :param bool encode_content: Better be True, because otherwise values may not be submitted correctly.
+        :param bool fail_silently:
         :return int:
         """
-        if not self.exists():
+        if not self.exists(fail_silently=fail_silently):
             return None
 
         url = self._build_put_url(row, columns)
@@ -472,12 +481,13 @@ class Table(object):
             url = url,
             data = data,
             decode_content = False,
-            method = POST
+            method = POST,
+            fail_silently = fail_silently
             ).get_response()
 
         return response.status_code
 
-    def update(self, row, columns, timestamp=None):
+    def update(self, row, columns, timestamp=None, fail_silently=True):
         """
         Updates a single row in a table.
 
@@ -498,13 +508,14 @@ class Table(object):
         >>> table.insert('row1', {'column1': {'id': '1', 'name': 'Some name'}, 'column2': {'id': '2', 'age': '32'}})
         >>> table.update('row1', {'column3': {'gender': 'female', 'favourite_book': 'Solaris'}})
         """
-        return self._post(row, columns, timestamp=timestamp)
+        return self._post(row, columns, timestamp=timestamp, fail_silently=fail_silently)
 
-    def drop(self):
+    def drop(self, fail_silently=True):
         """
         Drops current table. If not successful, returns appropriate HTTP error status code. If successful,
         returns HTTP 200 status.
 
+        :param bool fail_silently:
         :return int: HTTP response status code (200 on success).
 
         :example:
@@ -519,13 +530,14 @@ class Table(object):
         response = HttpRequest(
             connection = self.connection,
             url = '{0}/schema'.format(self.name),
-            method = DELETE
+            method = DELETE,
+            fail_silently = fail_silently
             ).get_response()
 
         # If response.status_code == 200 it means table was successfully dropped/deleted.
         return response.status_code
 
-    def _delete(self, row, column=None, qualifier=None, timestamp=None):
+    def _delete(self, row, column=None, qualifier=None, timestamp=None, fail_silently=True):
         """
         Deletes the table row or selected columns row given. If not successful, returns appropriate HTTP error
         status code. If successful, returns HTTP 200 status.
@@ -535,14 +547,20 @@ class Table(object):
             set to None, entire row is deleted.
         :param str qualifier: Column qualifier. If given, only that specific column qualifier is deleted. If left
             blank or set to None, entire column family is deleted.
+        :param bool fail_silently:
         :return int: HTTP status code.
         """
         url = self._build_delete_url(row=row, column=column, qualifier=qualifier)
 
-        response = HttpRequest(connection=self.connection, url=url, method=DELETE).get_response()
+        response = HttpRequest(
+            connection = self.connection,
+            url = url,
+            method = DELETE,
+            fail_silently = fail_silently
+            ).get_response()
         return response.status_code
 
-    def remove(self, row, column=None, qualifier=None, timestamp=None):
+    def remove(self, row, column=None, qualifier=None, timestamp=None, fail_silently=True):
         """
         Removes/delets a single row/column/qualifier from a table (depending on the depth given). If only row
         is given, the entire row is deleted. If row and column, only the column value is deleted (entirely for
@@ -566,9 +584,9 @@ class Table(object):
         >>> table.remove('row1', 'column1')
         >>> table.remove('row1')
         """
-        return self._delete(row, column=column, qualifier=qualifier, timestamp=timestamp)
+        return self._delete(row, column=column, qualifier=qualifier, timestamp=timestamp, fail_silently=fail_silently)
 
-    def schema(self):
+    def schema(self, fail_silently=True):
         """
         Table schema. Retrieves table schema.
 
@@ -581,13 +599,14 @@ class Table(object):
         >>> table.schema()
         """
         url = "{table_name}/schema".format(table_name=self.name)
-        response = HttpRequest(connection=self.connection, url=url).get_response()
+        response = HttpRequest(connection=self.connection, url=url, fail_silently=fail_silently).get_response()
         return response.content
 
-    def exists(self):
+    def exists(self, fail_silently=True):
         """
         Checks if table exists.
 
+        :param bool fail_silently:
         :return bool:
 
         :example:
@@ -596,7 +615,7 @@ class Table(object):
         >>> table = connection.table('table1')
         >>> table.exists()
         """
-        return self.connection.table_exists(self.name)
+        return self.connection.table_exists(self.name, fail_silently=fail_silently)
 
     def columns(self):
         """
@@ -615,14 +634,14 @@ class Table(object):
 
         return [cf['name'] for cf in columns_schema]
 
-    def regions(self):
+    def regions(self, fail_silently=True):
         """
         Table metadata. Retrieves table region metadata.
 
         :return dict:
         """
         url = "{table_name}/regions".format(table_name=self.name)
-        response = HttpRequest(connection=self.connection, url=url).get_response()
+        response = HttpRequest(connection=self.connection, url=url, fail_silently=fail_silently).get_response()
         return response.content
     metadata = regions
     metadata.__doc__ = regions.__doc__
@@ -749,11 +768,12 @@ class Table(object):
 
         return self._replace_schema(remaining_columns)
 
-    def batch(self, size=None):
+    def batch(self, size=None, fail_silently=True):
         """
         Returns a Batch instance. Returns None if table does not exist.
 
         :param int size: Size of auto-commit. If not given, auto-commit is disabled.
+        :param bool fail_silently:
         :return starbase.client.table.batch.Batch:
 
         :example:
@@ -768,7 +788,7 @@ class Table(object):
         >>> batch.insert('row3', {'column1': {'id': '13', 'name': 'Some name'}, 'column2': {'id': '23', 'age': '323'}})
         >>> batch.commit(finalize=True)
         """
-        if not self.exists():
+        if not self.exists(fail_silently=fail_silently):
             return None
 
         return Batch(table=self, size=size)

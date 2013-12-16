@@ -31,7 +31,7 @@ class Batch(object):
     def __repr__(self):
         return "<starbase.client.batch.Batch> of {0}".format(self.table)
 
-    def _put(self, row, columns, timestamp=None, encode_content=True):
+    def _put(self, row, columns, timestamp=None, encode_content=True, fail_silently=True):
         """
         PUT operation in batch.
         """
@@ -47,18 +47,18 @@ class Batch(object):
             columns,
             timestamp = timestamp,
             encode_content = encode_content,
-            with_row_declaration=False
+            with_row_declaration = False
             )
 
         self._stack.append(data)
 
         if self.size and len(self._stack) > self.size:
-            self.commit()
+            self.commit(fail_silently=fail_silently)
 
-    def insert(self, row, columns, timestamp=None):
-        return self._put(row, columns, timestamp=timestamp, encode_content=True)
+    def insert(self, row, columns, timestamp=None, fail_silently=True):
+        return self._put(row, columns, timestamp=timestamp, encode_content=True, fail_silently=fail_silently)
 
-    def _post(self, row, columns, timestamp=None, encode_content=True):
+    def _post(self, row, columns, timestamp=None, encode_content=True, fail_silently=True):
         """
         POST operation in batch.
         """
@@ -79,18 +79,18 @@ class Batch(object):
         self._stack.append(data)
 
         if self.size and len(self._stack) > self.size:
-            self.commit()
+            self.commit(fail_silently=fail_silently)
 
-    def update(self, row, columns, timestamp=None, encode_content=True):
-        return self._post(row, columns, timestamp=timestamp)
+    def update(self, row, columns, timestamp=None, encode_content=True, fail_silently=True):
+        return self._post(row, columns, timestamp=timestamp, fail_silently=fail_silently)
 
-    def commit(self, finalize=False):
+    def commit(self, finalize=False, fail_silently=True):
         """
         Sends all queued items to Stargate.
 
         :param bool finalize: If set to True, the batch is finalized, settings are cleared up and response is
             returned.
-
+        :param bool fail_silently:
         :return dict: If `finalize` set to True, returns the returned value of method
             meth::`starbase.client.batch.Batch.finalize`.
         """
@@ -100,6 +100,7 @@ class Batch(object):
             data = {"Row" : self._stack},
             decode_content = False,
             method = self._method,
+            fail_silently = fail_silently
             ).get_response()
         self._response.append(response.status_code)
         self._stack = []

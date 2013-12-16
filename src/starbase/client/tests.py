@@ -29,11 +29,15 @@ except ImportError:
     else:
         from urllib2 import build_opener
 
+from requests.exceptions import HTTPError
+
 from starbase import Connection, Table
+from starbase.exceptions import DoesNotExist, ParseError
 
 HOST = '127.0.0.1'
 PORT = 8000
 TABLE_NAME = 'messages'
+NON_EXISTENT_TABLE_NAME = 'user_stats'
 
 COLUMN_FROM_USER = 'from_user'
 FIELD_FROM_USER_ID = 'id'
@@ -1075,6 +1079,180 @@ class StarbaseClient02TableTest(unittest.TestCase):
 
         f = open('file.jpg', 'wb')
         f.write(binascii.a2b_hex(read_res[COLUMN_MESSAGE]['image']))
+
+    def __insert_row_into_non_existing_table(self, fail_silently=True):
+        """
+        Insert row into non-existing table.
+        """
+        # Success test
+        perfect_dict = True
+
+        key = 'row_{0}_{1}'.format(('perfect_' if perfect_dict else ''), str(uuid.uuid4()))
+
+        columns = {
+            COLUMN_FROM_USER: {
+                FIELD_FROM_USER_ID: '123',
+                FIELD_FROM_USER_NAME: 'John Doe',
+                FIELD_FROM_USER_EMAIL: 'john@doe.com'
+            },
+            COLUMN_TO_USER: {
+                FIELD_TO_USER_ID: '456',
+                FIELD_TO_USER_NAME: 'Lorem Ipsum',
+                FIELD_TO_USER_EMAIL: 'lorem@ipsum.com'
+            },
+            COLUMN_MESSAGE: {
+                FIELD_MESSAGE_SUBJECT: 'Lorem ipsum',
+                FIELD_MESSAGE_BODY: 'Lorem ipsum dolor sit amet.'
+            },
+        }
+        table = self.connection.table(NON_EXISTENT_TABLE_NAME)
+        res = table.insert(key, columns, fail_silently=fail_silently)
+        return res
+
+    @print_info
+    def test_26_insert_row_into_non_existing_table_fail_silently(self):
+        """
+        Insert row into non-existing table (`fail_silently` set to True).
+        """
+        res = self.__insert_row_into_non_existing_table(fail_silently=True)
+        self.assertEqual(res, None)
+
+    @print_info
+    def test_27_insert_row_into_non_existing_table_raise_exception(self):
+        """
+        Insert row into non-existing table (`fail_silently` set to False).
+        """
+        try:
+            res = self.__insert_row_into_non_existing_table(fail_silently=False)
+            raise Exception("`starbase.exceptions.DoesNotExist` is expected to be raised, but it's not!")
+        except DoesNotExist as e:
+            pass
+
+    def __update_row_of_non_existing_table(self, fail_silently=True):
+        """
+        Update row of non-existing table.
+        """
+        # Success test
+        perfect_dict = True
+
+        key = 'row_{0}_{1}'.format(('perfect_' if perfect_dict else ''), str(uuid.uuid4()))
+
+        columns = {
+            COLUMN_FROM_USER: {
+                FIELD_FROM_USER_ID: '123',
+                FIELD_FROM_USER_NAME: 'John Doe',
+                FIELD_FROM_USER_EMAIL: 'john@doe.com'
+            },
+            COLUMN_TO_USER: {
+                FIELD_TO_USER_ID: '456',
+                FIELD_TO_USER_NAME: 'Lorem Ipsum',
+                FIELD_TO_USER_EMAIL: 'lorem@ipsum.com'
+            },
+            COLUMN_MESSAGE: {
+                FIELD_MESSAGE_SUBJECT: 'Lorem ipsum',
+                FIELD_MESSAGE_BODY: 'Lorem ipsum dolor sit amet.'
+            },
+        }
+        table = self.connection.table(NON_EXISTENT_TABLE_NAME)
+        res = table.update(key, columns, fail_silently=fail_silently)
+        return res
+
+    @print_info
+    def test_28_update_row_of_non_existing_table_fail_silently(self):
+        """
+        Update row of non-existing table (`fail_silently` set to True).
+        """
+        res = self.__update_row_of_non_existing_table(fail_silently=True)
+        self.assertEqual(res, None)
+
+    @print_info
+    def test_29_update_row_of_non_existing_table_raise_exception(self):
+        """
+        Update row of non-existing table (`fail_silently` set to False).
+        """
+        try:
+            res = self.__update_row_of_non_existing_table(fail_silently=False)
+            raise Exception("`starbase.exceptions.DoesNotExist` is expected to be raised, but it's not!")
+        except DoesNotExist as e:
+            pass
+
+    def __drop_non_existing_table_fail_silently(self, fail_silently=True):
+        """
+        Drop non-existing table.
+        """
+        table = self.connection.table(NON_EXISTENT_TABLE_NAME)
+        return table.drop(fail_silently=fail_silently)
+
+    @print_info
+    def test_30_drop_non_existing_table_fail_silently(self):
+        """
+        Drop non-existing table (`fail_silently` set to True).
+        """
+        res = self.__drop_non_existing_table_fail_silently(fail_silently=True)
+        self.assertEqual(res, 503)
+
+    @print_info
+    def test_31_drop_non_existing_table_raise_exception(self):
+        """
+        Drop non-existing table  (`fail_silently` set to False).
+        """
+        try:
+            res = self.__drop_non_existing_table_fail_silently(fail_silently=False)
+            raise Exception("`requests.exceptions.HTTPError` is expected to be raised, but it's not!")
+        except HTTPError as e:
+            pass
+
+    def __fetch_row_of_non_existing_table(self, fail_silently=True):
+        """
+        Fetch row of non existing table.
+        """
+        table = self.connection.table(NON_EXISTENT_TABLE_NAME)
+        return table.fetch('bla_01', fail_silently=fail_silently)
+
+    @print_info
+    def test_32_fetch_row_of_non_existing_table_fail_silently(self):
+        """
+        Drop non-existing table (`fail_silently` set to True).
+        """
+        res = self.__fetch_row_of_non_existing_table(fail_silently=True)
+        self.assertEqual(res, None)
+
+    @print_info
+    def test_33_fetch_row_of_non_existing_table_raise_exception(self):
+        """
+        Drop non-existing table  (`fail_silently` set to False).
+        """
+        try:
+            res = self.__fetch_row_of_non_existing_table(fail_silently=False)
+            raise Exception("`starbase.exceptions.DoesNotExist` is expected to be raised, but it's not!")
+        except DoesNotExist as e:
+            pass
+
+    def __remove_row_of_non_existing_table(self, fail_silently=True):
+        """
+        Remove row of non existing table.
+        """
+        table = self.connection.table(NON_EXISTENT_TABLE_NAME)
+        return table.remove('bla_01', fail_silently=fail_silently)
+
+    @print_info
+    def test_34_remove_row_of_non_existing_table_fail_silently(self):
+        """
+        Remove row of non-existing table (`fail_silently` set to True).
+        """
+        res = self.__remove_row_of_non_existing_table(fail_silently=True)
+        self.assertEqual(res, 500)
+
+    @print_info
+    def test_35_remove_row_of_non_existing_table_raise_exception(self):
+        """
+        Remove row of non-existing table  (`fail_silently` set to False).
+        """
+        try:
+            res = self.__remove_row_of_non_existing_table(fail_silently=False)
+            raise Exception("`starbase.exceptions.DoesNotExist` is expected to be raised, but it's not!")
+        except HTTPError as e:
+            pass
 
 if __name__ == '__main__':
     unittest.main()

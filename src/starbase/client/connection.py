@@ -4,7 +4,7 @@ __copyright__ = 'Copyright (c) 2013 Artur Barseghyan'
 __license__ = 'GPL 2.0/LGPL 2.1'
 __all__ = ('Connection',)
 
-from starbase.exceptions import ImproperlyConfigured
+from starbase.exceptions import ImproperlyConfigured, DoesNotExist
 from starbase.content_types import CONTENT_TYPES_DICT, CONTENT_TYPES, DEFAULT_CONTENT_TYPE
 from starbase.defaults import HOST, PORT, USER, PASSWORD, PERFECT_DICT
 from starbase.client.table import Table
@@ -58,9 +58,7 @@ class Connection(object):
             'secure': 's' if self.secure else '',
             'host': self.host,
             'port': self.port,
-            #'user_credentials': ("{0}:{1}@".format(self.user, self.password)) if (self.user and self.password) else ''
         }
-        #self.base_url = 'http{secure}://{user_credentials}{host}:{port}/'.format(**data)
         self.base_url = 'http{secure}://{host}:{port}/'.format(**data)
 
     @property
@@ -101,12 +99,11 @@ class Connection(object):
         :param str name: Table name. Example value 'test'.
         :return stargate.base.Table:
 
-        .. note::
-            This method does not check if table exists. Use the following methods to perform the
-            check:
+        This method does not check if table exists. Use the following methods to perform the
+        check:
 
-                - `starbase.client.Connection.table_exists` or
-                - `starbase.client.table.Table.exists`.
+            - `starbase.client.Connection.table_exists` or
+            - `starbase.client.table.Table.exists`.
         """
         return Table(connection=self, name=name)
 
@@ -125,14 +122,20 @@ class Connection(object):
                 return []
         return response.content
 
-    def table_exists(self, name):
+    def table_exists(self, name, fail_silently=True):
         """
         Checks if table exists.
 
         :param str name: Table name.
+        :param bool fail_silently:
         :return bool:
         """
-        return name in self.tables()
+        table_exists = name in self.tables()
+
+        if not table_exists and not fail_silently:
+            raise DoesNotExist("Table `{0}` does not exist!".format(name))
+
+        return table_exists
 
     # ******************** Helper methods ********************
     def create_table(self, name, *columns):

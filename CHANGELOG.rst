@@ -1,6 +1,13 @@
 Release history
 =====================================
 
+0.2.7
+-------------------------------------
+2013-12-16
+
+- `DoesNotExist` and `ParseError` exceptions added, along with `fail_silently` argument for appropriate
+  methods of the `Table`, `Batch` and `HttpRequest` classes.
+
 0.2.6
 -------------------------------------
 2013-12-05

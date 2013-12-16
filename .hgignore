@@ -18,3 +18,4 @@ syntax: regexp
 ^src/starbase\.egg-info
 local_settings\.py
 MANIFEST\.in~
+file\.jpg
