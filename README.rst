@@ -321,6 +321,46 @@ Fetch rows with a filter given
 >>> t.fetch_all_rows(with_row_id=True, filter_string=rf)
 <generator object results at 0x28e9190>
 
+Exception handling
+=========================================
+starbase.client.connection.Connection
+-----------------------------------------
+The following methods of the class `starbase.client.connection.Connection` accept `fail_silently` argument:
+
+- version
+- cluster_version
+- cluster_status
+- tables
+- table_exists
+- drop_table
+
+starbase.client.table.Table
+-----------------------------------------
+The following methods of the class `starbase.client.table.Table` accept `fail_silently` argument:
+
+- batch
+- drop
+- exists
+- fetch
+- fetch_all_rows
+- insert
+- regions
+- remove
+- schema
+- update
+
+starbase.client.table.Batch
+-----------------------------------------
+The following methods of the class `starbase.client.table.Batch` accept `fail_silently` argument:
+
+- insert
+- update
+- commit
+
+starbase.client.transport.HttpRequest
+-----------------------------------------
+Class `starbase.client.table.Batch` accept `fail_silently` as a constructor argument.
+
 More examples
 =========================================
 

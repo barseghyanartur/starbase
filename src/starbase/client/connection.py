@@ -62,34 +62,37 @@ class Connection(object):
         self.base_url = 'http{secure}://{host}:{port}/'.format(**data)
 
     @property
-    def version(self):
+    def version(self, fail_silently=True):
         """
         Software version. Returns the software version.
 
+        :param bool fail_silently:
         :return dict: Dictionary with info on software versions (OS, Server, JVM, etc).
         """
-        response = HttpRequest(connection=self, url='version').get_response()
+        response = HttpRequest(connection=self, url='version', fail_silently=fail_silently).get_response()
         return response.content
 
     @property
-    def cluster_version(self):
+    def cluster_version(self, fail_silently=True):
         """
         Storage cluster version. Returns version information regarding the HBase cluster backing the Stargate
         instance.
 
+        :param bool fail_silently:
         :return str: HBase version.
         """
-        response = HttpRequest(connection=self, url='version/cluster').get_response()
+        response = HttpRequest(connection=self, url='version/cluster', fail_silently=fail_silently).get_response()
         return response.content
 
     @property
-    def cluster_status(self):
+    def cluster_status(self, fail_silently=True):
         """
         Storage cluster satus. Returns detailed status on the HBase cluster backing the Stargate instance.
 
+        :param bool fail_silently:
         :return dict: Dictionary with information on dead nodes, live nodes, average load, regions, etc.
         """
-        response = HttpRequest(connection=self, url='status/cluster').get_response()
+        response = HttpRequest(connection=self, url='status/cluster', fail_silently=fail_silently).get_response()
         return response.content
 
     def table(self, name):
@@ -107,14 +110,15 @@ class Connection(object):
         """
         return Table(connection=self, name=name)
 
-    def tables(self, raw=False):
+    def tables(self, raw=False, fail_silently=True):
         """
         Table list. Retrieves the list of available tables.
 
         :param bool raw: If set to True raw result (JSON) is returned.
+        :param bool fail_silently:
         :return list: Just a list of plain strings of table names, no Table instances.
         """
-        response = HttpRequest(connection=self).get_response()
+        response = HttpRequest(connection=self, fail_silently=fail_silently).get_response()
         if not raw:
             try:
                 return [table['name'] for table in response.content['table']]
@@ -152,7 +156,7 @@ class Connection(object):
             table.create(*columns)
             return table
 
-    def drop_table(self, name):
+    def drop_table(self, name, fail_silently=True):
         """
         Drops the table.
 
@@ -160,4 +164,4 @@ class Connection(object):
         :return int: Status code.
         """
         table = self.table(name)
-        return table.drop()
+        return table.drop(fail_silently=fail_silently)

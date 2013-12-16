@@ -312,10 +312,10 @@ class Table(object):
         >>> filter_string = '{"type": "RowFilter", "op": "EQUAL", "comparator": '
         >>>                 '{"type": "RegexStringComparator", "value": "^row_1.+"}}'
         >>> rows = self.table.fetch_all_rows(
-        >>>            with_row_id = True,
-        >>>            perfect_dict = perfect_dict,
-        >>>            filter_string = row_filter_string
-        >>>            )
+        >>>     with_row_id = True,
+        >>>     perfect_dict = perfect_dict,
+        >>>     filter_string = row_filter_string
+        >>>     )
         """
         if not self.exists(fail_silently=fail_silently):
             return None
