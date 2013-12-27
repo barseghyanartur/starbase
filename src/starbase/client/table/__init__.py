@@ -651,7 +651,7 @@ class Table(object):
         Creates a table schema. If not successful, returns appropriate HTTP error status code. If successful,
         returns HTTP 201 status.
 
-        :param list *columns: List of columns (plain strins).
+        :param list *columns: List of columns (plain strings).
         :return int: HTTP response status code (201 on success). Returns boolean False on failure.
 
         :example:
@@ -696,7 +696,7 @@ class Table(object):
         Updates current table schema. If not successful, returns appropriate HTTP error status code. If
         successful, returns HTTP 200 status or boolean False if table does not exist.
 
-        :param list columns: List of columns (plain strins).
+        :param list columns: List of columns (plain strings).
         :param str method: HTTP method (GET, POST, PUT, DELETE).
         :return int: HTTP response status code.
         """
@@ -715,7 +715,7 @@ class Table(object):
         """
         Replaces the table schema.
 
-        :param list columns: List of columns (plain strins). If not successful, returns appropriate HTTP error
+        :param list columns: List of columns (plain strings). If not successful, returns appropriate HTTP error
             status code. If successful, returns HTTP 200 status or boolean False if table does not exist.
         :return int: HTTP response status code.
         """
@@ -727,7 +727,7 @@ class Table(object):
         successful, returns HTTP 200 status.
 
         :param str name: Table name.
-        :param list *columns: List of columns (plain strins) to ADD.
+        :param list *columns: List of columns (plain strings) to ADD.
         :return int: HTTP response status code (200 on success).
 
         :example:
@@ -749,7 +749,7 @@ class Table(object):
         successful, returns HTTP 201 status.
 
         :param str name: Table name.
-        :param list *columns: List of columns (plain strins) to REMOVE.
+        :param list *columns: List of columns (plain strings) to REMOVE.
         :return int: HTTP response status code (201 on success).
 
         :example:
