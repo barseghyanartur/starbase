@@ -1,6 +1,14 @@
 Release history
 =====================================
 
+0.2.8
+-------------------------------------
+2014-01-30
+
+- More on exceptions. Adding `IntegrityError` exception added. Several methods (for example `Table.create`)
+  got an optional `fail_silently` argument.
+- Improved documentation (mainly building of).
+
 0.2.7
 -------------------------------------
 2013-12-16

@@ -323,10 +323,10 @@ Fetch rows with a filter given
 
 Exception handling
 =========================================
+Methods that accept `fail_silently` argument are listed per class below.
+
 starbase.client.connection.Connection
 -----------------------------------------
-The following methods of the class `starbase.client.connection.Connection` accept `fail_silently` argument:
-
 - version
 - cluster_version
 - cluster_status
@@ -336,9 +336,8 @@ The following methods of the class `starbase.client.connection.Connection` accep
 
 starbase.client.table.Table
 -----------------------------------------
-The following methods of the class `starbase.client.table.Table` accept `fail_silently` argument:
-
 - batch
+- create
 - drop
 - exists
 - fetch
@@ -351,15 +350,13 @@ The following methods of the class `starbase.client.table.Table` accept `fail_si
 
 starbase.client.table.Batch
 -----------------------------------------
-The following methods of the class `starbase.client.table.Batch` accept `fail_silently` argument:
-
 - insert
 - update
 - commit
 
 starbase.client.transport.HttpRequest
 -----------------------------------------
-Class `starbase.client.table.Batch` accept `fail_silently` as a constructor argument.
+Class `starbase.client.table.Batch` accepts `fail_silently` as a constructor argument.
 
 More examples
 =========================================

@@ -9,7 +9,7 @@ import json
 
 from six import string_types, PY3
 
-from starbase.exceptions import InvalidArguments, ParseError, DoesNotExist
+from starbase.exceptions import InvalidArguments, ParseError, DoesNotExist, IntegrityError
 from starbase.content_types import DEFAULT_CONTENT_TYPE
 from starbase.defaults import PERFECT_DICT
 from starbase.client.transport import HttpRequest
@@ -237,7 +237,13 @@ class Table(object):
         if number_of_versions is not None:
             assert isinstance(number_of_versions, int)
             url += '?v={0}'.format(str(number_of_versions))
-        response = HttpRequest(connection=self.connection, url=url, decode_content=decode_content).get_response()
+
+        response = HttpRequest(
+            connection = self.connection,
+            url = url,
+            decode_content = decode_content,
+            fail_silently = fail_silently
+            ).get_response()
 
         response_content = response.content
 
@@ -323,7 +329,7 @@ class Table(object):
         if perfect_dict is None:
             perfect_dict = self.connection.perfect_dict
 
-        scanner = self._scanner(filter_string=filter_string, data=scanner_config)
+        scanner = self._scanner(filter_string=filter_string, data=scanner_config, fail_silently=fail_silently)
         res = scanner.results(perfect_dict=perfect_dict, with_row_id=with_row_id, raw=raw)
         scanner.delete ()
 
@@ -435,7 +441,7 @@ class Table(object):
         return self._put(row=row, columns=columns, timestamp=timestamp, fail_silently=fail_silently)
 
     def _scanner(self, batch_size=None, start_row=None, end_row=None, start_time=None, end_time=None, \
-                 filter_string=None, data=''):
+                 filter_string=None, data='', fail_silently=True):
         """
         Creates a scanner instance.
 
@@ -452,7 +458,14 @@ class Table(object):
         if filter_string is not None:
             data = {"filter": filter_string}
 
-        response = HttpRequest(connection=self.connection, url=url, data=data, method=PUT).get_response()
+        response = HttpRequest(
+            connection = self.connection,
+            url = url,
+            data = data,
+            method = PUT,
+            fail_silently = fail_silently
+            ).get_response()
+
         scanner_url = response.raw.headers.get('location')
 
         return Scanner(table=self, url=scanner_url)
@@ -646,7 +659,7 @@ class Table(object):
     metadata = regions
     metadata.__doc__ = regions.__doc__
 
-    def create(self, *columns):
+    def create(self, *columns, **kwargs):
         """
         Creates a table schema. If not successful, returns appropriate HTTP error status code. If successful,
         returns HTTP 201 status.
@@ -660,13 +673,25 @@ class Table(object):
         >>> table = connection.table('table1')
         >>> table.create('column1', 'column2')
         """
+        fail_silently = kwargs.get('fail_silently', True)
+
         # If table exists, return False
         if self.exists():
-            return False
+            if fail_silently:
+                return False
+            else:
+                raise IntegrityError("Table ``{0}`` already exists".format(self.name))
 
         url, data = self._get_data_for_table_create_or_update(columns)
 
-        response = HttpRequest(connection=self.connection, url=url, data=data, method=PUT).get_response()
+        response = HttpRequest(
+            connection = self.connection,
+            url = url,
+            data = data,
+            method = PUT,
+            fail_silently = fail_silently
+            ).get_response()
+
         return response.status_code
 
     def _get_data_for_table_create_or_update(self, columns):
@@ -691,7 +716,7 @@ class Table(object):
 
         return url, data
 
-    def _update_schema(self, columns, method=None):
+    def _update_schema(self, columns, method=None, fail_silently=True):
         """
         Updates current table schema. If not successful, returns appropriate HTTP error status code. If
         successful, returns HTTP 200 status or boolean False if table does not exist.
@@ -700,7 +725,7 @@ class Table(object):
         :param str method: HTTP method (GET, POST, PUT, DELETE).
         :return int: HTTP response status code.
         """
-        if not self.exists():
+        if not self.exists(fail_silently=fail_silently):
             return False
 
         if method is None:
@@ -708,7 +733,14 @@ class Table(object):
 
         url, data = self._get_data_for_table_create_or_update(columns)
 
-        response = HttpRequest(connection=self.connection, url=url, data=data, method=method).get_response()
+        response = HttpRequest(
+            connection = self.connection,
+            url = url,
+            data = data,
+            method = method,
+            fail_silently = fail_silently
+            ).get_response()
+
         return response.status_code
 
     def _replace_schema(self, columns):
