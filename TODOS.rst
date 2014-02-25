@@ -14,6 +14,8 @@ Must haves
 - Syntax globbing.
 - Update tests. Include tests for Batch insert. Move some code parts into separate private methods which 
   are used in tests.
+- Make `exists` check on the table instance optional (`on` by default, but possible to switch off (for a 
+  speed up == less HTTP requests).
 
 Should haves
 ------------------------------------
