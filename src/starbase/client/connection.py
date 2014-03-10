@@ -4,6 +4,7 @@ __copyright__ = 'Copyright (c) 2013 Artur Barseghyan'
 __license__ = 'GPL 2.0/LGPL 2.1'
 __all__ = ('Connection',)
 
+from starbase.translations import _
 from starbase.exceptions import ImproperlyConfigured, DoesNotExist
 from starbase.content_types import CONTENT_TYPES_DICT, CONTENT_TYPES, DEFAULT_CONTENT_TYPE
 from starbase.defaults import HOST, PORT, USER, PASSWORD, PERFECT_DICT

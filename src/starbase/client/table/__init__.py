@@ -9,6 +9,8 @@ import json
 
 from six import string_types, PY3
 
+from requests.models import HTTPError
+
 from starbase.exceptions import InvalidArguments, ParseError, DoesNotExist, IntegrityError
 from starbase.content_types import DEFAULT_CONTENT_TYPE
 from starbase.defaults import PERFECT_DICT
@@ -35,6 +37,7 @@ class Table(object):
         """
         self.connection = connection
         self.name = name
+        self.enable_if_exists_checks()
 
     def __repr__(self):
         return "<starbase.client.table.Table ({0})> on {1}".format(self.name, self.connection)
@@ -218,8 +221,9 @@ class Table(object):
         :param bool raw:
         :return dict:
         """
-        if not self.exists(fail_silently=fail_silently):
-            return None
+        if self.check_if_exists_on_row_fetch:
+            if not self.exists(fail_silently=fail_silently):
+                return None
 
         if perfect_dict is None:
             perfect_dict = self.connection.perfect_dict
@@ -323,15 +327,27 @@ class Table(object):
         >>>     filter_string = row_filter_string
         >>>     )
         """
-        if not self.exists(fail_silently=fail_silently):
-            return None
+        if self.check_if_exists_on_scanner_operations:
+            if not self.exists(fail_silently=fail_silently):
+                return None
 
         if perfect_dict is None:
             perfect_dict = self.connection.perfect_dict
 
-        scanner = self._scanner(filter_string=filter_string, data=scanner_config, fail_silently=fail_silently)
-        res = scanner.results(perfect_dict=perfect_dict, with_row_id=with_row_id, raw=raw)
-        scanner.delete ()
+        try:
+            scanner = self._scanner(filter_string=filter_string, data=scanner_config, fail_silently=fail_silently)
+        except HTTPError as e:
+            if fail_silently:
+                return []
+            raise DoesNotExist(_("""Table "{0}" does not exist.""".format(self.name)))
+
+        if scanner:
+            res = scanner.results(perfect_dict=perfect_dict, with_row_id=with_row_id, raw=raw)
+            scanner.delete ()
+        else:
+            if fail_silently:
+                return None
+            raise DoesNotExist(_("""Table "{0}" does not exist.""".format(self.name)))
 
         if flat:
             res = list(res)
@@ -400,8 +416,9 @@ class Table(object):
         :param bool fail_silently:
         :return int:
         """
-        if not self.exists(fail_silently=fail_silently):
-            return None
+        if self.check_if_exists_on_row_insert:
+            if not self.exists(fail_silently=fail_silently):
+                return None
 
         url = self._build_put_url(row, columns)
 
@@ -468,7 +485,8 @@ class Table(object):
 
         scanner_url = response.raw.headers.get('location')
 
-        return Scanner(table=self, url=scanner_url)
+        if scanner_url:
+            return Scanner(table=self, url=scanner_url)
 
     def _post(self, row, columns, timestamp=None, encode_content=True, fail_silently=True):
         """
@@ -481,8 +499,9 @@ class Table(object):
         :param bool fail_silently:
         :return int:
         """
-        if not self.exists(fail_silently=fail_silently):
-            return None
+        if self.check_if_exists_on_row_update:
+            if not self.exists(fail_silently=fail_silently):
+                return None
 
         url = self._build_put_url(row, columns)
 
@@ -676,11 +695,12 @@ class Table(object):
         fail_silently = kwargs.get('fail_silently', True)
 
         # If table exists, return False
-        if self.exists():
-            if fail_silently:
-                return False
-            else:
-                raise IntegrityError("Table ``{0}`` already exists".format(self.name))
+        if self.check_if_exists_on_schema_operations:
+            if self.exists():
+                if fail_silently:
+                    return False
+                else:
+                    raise IntegrityError("Table ``{0}`` already exists".format(self.name))
 
         url, data = self._get_data_for_table_create_or_update(columns)
 
@@ -725,8 +745,9 @@ class Table(object):
         :param str method: HTTP method (GET, POST, PUT, DELETE).
         :return int: HTTP response status code.
         """
-        if not self.exists(fail_silently=fail_silently):
-            return False
+        if self.check_if_exists_on_schema_operations:
+            if not self.exists(fail_silently=fail_silently):
+                return False
 
         if method is None:
             method = POST
@@ -820,7 +841,32 @@ class Table(object):
         >>> batch.insert('row3', {'column1': {'id': '13', 'name': 'Some name'}, 'column2': {'id': '23', 'age': '323'}})
         >>> batch.commit(finalize=True)
         """
-        if not self.exists(fail_silently=fail_silently):
-            return None
+        if self.check_if_exists_on_batch_operations:
+            if not self.exists(fail_silently=fail_silently):
+                return None
 
         return Batch(table=self, size=size)
+
+    def disable_if_exists_checks(self):
+        """
+        Skips calling the `exists` method on any operation.
+        """
+        self.check_if_exists_on_row_fetch = False
+        self.check_if_exists_on_row_insert = False
+        self.check_if_exists_on_row_remove = False
+        self.check_if_exists_on_row_update = False
+        self.check_if_exists_on_scanner_operations = False
+        self.check_if_exists_on_schema_operations = False
+        self.check_if_exists_on_batch_operations = False
+
+    def enable_if_exists_checks(self):
+        """
+        Enables `exists` method on any operation. The opposite of `skip_if_exists_checks`.
+        """
+        self.check_if_exists_on_row_fetch = True
+        self.check_if_exists_on_row_insert = True
+        self.check_if_exists_on_row_remove = True
+        self.check_if_exists_on_row_update = True
+        self.check_if_exists_on_scanner_operations = True
+        self.check_if_exists_on_schema_operations = True
+        self.check_if_exists_on_batch_operations = True

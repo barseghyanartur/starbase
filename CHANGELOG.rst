@@ -1,19 +1,16 @@
 Release history
 =====================================
 
-0.2.9
+0.3
 -------------------------------------
-2014-03-08
-
-- Less strict `requests` requirement (from ==1.2.3 to >= 1.2.3).
-
-0.2.8
--------------------------------------
-2014-01-30
+2014-03-10
 
 - More on exceptions. Adding `IntegrityError` exception added. Several methods (for example `Table.create`)
   got an optional `fail_silently` argument.
 - Improved documentation (mainly building of).
+- Less strict `requests` requirement (from ==1.2.3 to >= 1.2.3).
+- Make it possible to skip ``exists`` checks for number of table operations.
+- Minor fixes.
 
 0.2.7
 -------------------------------------
