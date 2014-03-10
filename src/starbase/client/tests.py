@@ -115,7 +115,6 @@ class StarbaseClient01ConnectionTest(unittest.TestCase):
     """
     Starbase Connection tests.
     """
-    #@print_info
     def setUp(self):
         self.connection = Connection(HOST, PORT, content_type='json')
         self.table = self.connection.table(TABLE_NAME)
@@ -1254,6 +1253,70 @@ class StarbaseClient02TableTest(unittest.TestCase):
         except HTTPError as e:
             pass
 
+
+class StarbaseClient03TableTestDisabledIfExists(unittest.TestCase):
+    """
+    Starbase table tests with disabled if exists checks.
+    """
+    def setUp(self):
+        self.connection = Connection(HOST, PORT, content_type='json')
+        self.table = self.connection.table('non_existing')
+        self.table.disable_if_exists_checks()
+
+    @print_info
+    def test_01_fetch_row(self):
+        """
+        Testing row operations (`fetch` method) of the `starbase.client.table.Table`.
+        """
+        res = self.table.fetch('row1')
+        self.assertTrue(res is None)
+        return res
+
+    @print_info
+    def test_02_insert_row(self):
+        """
+        Testing row operations (`insert` method) of the `starbase.client.table.Table`.
+        """
+        res = self.table.insert('row1', {'column1': {'id': '1', 'name': 'nn'}, 'column2': {'id': '2', 'age': '3'}})
+        self.assertTrue(res == 500)
+        return res
+
+    @print_info
+    def test_03_update_row(self):
+        """
+        Testing row operations (`update` method) of the `starbase.client.table.Table`.
+        """
+        res = self.table.update('row1', {'column1': {'id': '1', 'name': 'nn'}, 'column2': {'id': '2', 'age': '3'}})
+        self.assertTrue(res == 500)
+        return res
+
+    @print_info
+    def test_04_remove_row(self):
+        """
+        Testing row operations (`remove` method) of the `starbase.client.table.Table`.
+        """
+        res = self.table.remove('row1')
+        self.assertTrue(res == 500)
+        return res
+
+    @print_info
+    def test_05_scanner_operations(self):
+        """
+        Testing scanner operations (`fetch_all_rows` method) of the `starbase.client.table.Table`.
+        """
+        res = self.table.fetch_all_rows(flat=True)
+        self.assertTrue(res is None)
+        return res
+
+    @print_info
+    def test_06_batch_operations(self):
+        """
+        Testing batch operations (`batch` method) of the `starbase.client.table.Table`.
+        """
+        res = self.table.batch()
+        self.assertTrue(res is None)
+        return res
+
+
 if __name__ == '__main__':
     unittest.main()
-    #print_('\n\n\n\n\n========================\n\n\n\n\nordering: ', ordering)

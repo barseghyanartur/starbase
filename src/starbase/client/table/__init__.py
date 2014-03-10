@@ -847,26 +847,42 @@ class Table(object):
 
         return Batch(table=self, size=size)
 
-    def disable_if_exists_checks(self):
+    @property
+    def check_if_exists_on_schema_operations(self):
+        return True
+
+    @property
+    def check_if_exists_on_batch_operations(self):
+        return True
+
+    def disable_row_operation_if_exists_checks(self):
         """
-        Skips calling the `exists` method on any operation.
+        Disables `exists` method on row operations.
         """
         self.check_if_exists_on_row_fetch = False
         self.check_if_exists_on_row_insert = False
         self.check_if_exists_on_row_remove = False
         self.check_if_exists_on_row_update = False
-        self.check_if_exists_on_scanner_operations = False
-        self.check_if_exists_on_schema_operations = False
-        self.check_if_exists_on_batch_operations = False
 
-    def enable_if_exists_checks(self):
+    def enable_row_operation_if_exists_checks(self):
         """
-        Enables `exists` method on any operation. The opposite of `skip_if_exists_checks`.
+        Enables `exists` method on row operations. The opposite of `disable_row_operation_if_exists_checks`.
         """
         self.check_if_exists_on_row_fetch = True
         self.check_if_exists_on_row_insert = True
         self.check_if_exists_on_row_remove = True
         self.check_if_exists_on_row_update = True
+
+    def disable_if_exists_checks(self):
+        """
+        Skips calling the `exists` method on any operation.
+        """
+        self.disable_row_operation_if_exists_checks()
+        self.check_if_exists_on_scanner_operations = False
+
+    def enable_if_exists_checks(self):
+        """
+        Enables `exists` method on any operation. The opposite of `disable_if_exists_checks`.
+        """
+        self.enable_row_operation_if_exists_checks()
         self.check_if_exists_on_scanner_operations = True
-        self.check_if_exists_on_schema_operations = True
-        self.check_if_exists_on_batch_operations = True

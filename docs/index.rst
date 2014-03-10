@@ -284,9 +284,10 @@ In the example below, we will insert 5000 records in a batch.
 >>>     'column2': {'key21': 'value 21', 'key22': 'value 22'},
 >>> }
 >>> b = t.batch()
->>> for i in range(0, 5000):
->>>     b.insert('my-key-%s' % i, data)
->>> b.commit(finalize=True)
+>>> if b:
+>>>     for i in range(0, 5000):
+>>>         b.insert('my-key-%s' % i, data)
+>>>     b.commit(finalize=True)
 {'method': 'PUT', 'response': [200], 'url': 'table3/bXkta2V5LTA='}
 
 Batch update
@@ -297,9 +298,10 @@ In the example below, we will update 5000 records in a batch.
 >>>     'column3': {'key31': 'value 31', 'key32': 'value 32'},
 >>> }
 >>> b = t.batch()
->>> for i in range(0, 5000):
->>>     b.update('my-key-%s' % i, data)
->>> b.commit(finalize=True)
+>>> if b:
+>>>     for i in range(0, 5000):
+>>>         b.update('my-key-%s' % i, data)
+>>>     b.commit(finalize=True)
 {'method': 'POST', 'response': [200], 'url': 'table3/bXkta2V5LTA='}
 
 Note: The table `batch` method accepts an optional `size` argument (int). If set, an auto-commit is fired
@@ -320,6 +322,19 @@ Fetch rows with a filter given
 >>> rf = '{"type": "RowFilter", "op": "EQUAL", "comparator": {"type": "RegexStringComparator", "value": "^row_1.+"}}'
 >>> t.fetch_all_rows(with_row_id=True, filter_string=rf)
 <generator object results at 0x28e9190>
+
+More information on table operations
+=========================================
+By default, prior further execution of the `fetch`, `insert`, `update`, `remove` (table row operations)
+methods, it's being checked whether the table exists or not. That's safe, but comes in cost of an
+extra (light though) HTTP request. If you're absolutely sure you want to avoid those checks, you can
+disable them. It's possible to disable each type of row operation, by setting the following properties
+of the table instance to False: ``check_if_exists_on_row_fetch``, ``check_if_exists_on_row_insert``,
+``check_if_exists_on_row_remove`` and ``check_if_exists_on_row_update``. It's also possible to disable
+them all at once, by calling the ``disable_row_operation_if_exists_checks`` method of the table instance.
+
+Same goes for table scanner operations. Setting the value of ``check_if_exists_on_scanner_operations``
+of a table instance to False, skips the checks for scanner operations.
 
 Exception handling
 =========================================
