@@ -330,11 +330,22 @@ methods, it's being checked whether the table exists or not. That's safe, but co
 extra (light though) HTTP request. If you're absolutely sure you want to avoid those checks, you can
 disable them. It's possible to disable each type of row operation, by setting the following properties
 of the table instance to False: ``check_if_exists_on_row_fetch``, ``check_if_exists_on_row_insert``,
-``check_if_exists_on_row_remove`` and ``check_if_exists_on_row_update``. It's also possible to disable
+``check_if_exists_on_row_remove`` and ``check_if_exists_on_row_update``.
+
+>>> t.check_if_exists_on_row_insert = False
+>>> t.fetch('row1')
+
+It's also possible to disable
 them all at once, by calling the ``disable_row_operation_if_exists_checks`` method of the table instance.
+
+>>> t.disable_row_operation_if_exists_checks()
+>>> t.remove('row1')
 
 Same goes for table scanner operations. Setting the value of ``check_if_exists_on_scanner_operations``
 of a table instance to False, skips the checks for scanner operations.
+
+>>> t.check_if_exists_on_scanner_operations = False
+>>> t.fetch_all_rows(flat=True)
 
 Exception handling
 =========================================
