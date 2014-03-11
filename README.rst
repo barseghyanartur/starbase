@@ -332,7 +332,7 @@ disable them. It's possible to disable each type of row operation, by setting th
 of the table instance to False: ``check_if_exists_on_row_fetch``, ``check_if_exists_on_row_insert``,
 ``check_if_exists_on_row_remove`` and ``check_if_exists_on_row_update``.
 
->>> t.check_if_exists_on_row_insert = False
+>>> t.check_if_exists_on_row_fetch = False
 >>> t.fetch('row1')
 
 It's also possible to disable
