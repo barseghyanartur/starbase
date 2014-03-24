@@ -764,17 +764,18 @@ class Table(object):
 
         return response.status_code
 
-    def _replace_schema(self, columns):
+    def _replace_schema(self, columns, fail_silently=True):
         """
         Replaces the table schema.
 
         :param list columns: List of columns (plain strings). If not successful, returns appropriate HTTP error
             status code. If successful, returns HTTP 200 status or boolean False if table does not exist.
+        :param bool fail_silently:
         :return int: HTTP response status code.
         """
-        return self._update_schema(columns, method=PUT)
+        return self._update_schema(columns, method=PUT, fail_silently=fail_silently)
 
-    def add_columns(self, *columns):
+    def add_columns(self, *columns, **kwargs):
         """
         Add columns to existing table (POST). If not successful, returns appropriate HTTP error status code. If
         successful, returns HTTP 200 status.
@@ -793,10 +794,11 @@ class Table(object):
         >>> table.create('column1', 'column2')
         >>> table.add_columns('column3', 'column4')
         """
+        fail_silently = kwargs.get('fail_silently', True)
         # If just one column given as string, make a list of it.
-        return self._update_schema(columns)
+        return self._update_schema(columns, fail_silently=fail_silently)
 
-    def drop_columns(self, *columns):
+    def drop_columns(self, *columns, **kwargs):
         """
         Removes/drops columns from table (PUT).If not successful, returns appropriate HTTP error status code. If
         successful, returns HTTP 201 status.
@@ -813,13 +815,13 @@ class Table(object):
         >>> table = connection.table('table1')
         >>> table.drop_columns('column1', 'column2')
         """
-        # If just one column given as string, make a list of it.
+        fail_silently = kwargs.get('fail_silently', True)
 
         columns = set(columns)
         existing_columns = set(self.columns())
         remaining_columns = existing_columns - columns
 
-        return self._replace_schema(remaining_columns)
+        return self._replace_schema(remaining_columns, fail_silently=fail_silently)
 
     def batch(self, size=None, fail_silently=True):
         """

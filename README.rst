@@ -353,22 +353,24 @@ Methods that accept `fail_silently` argument are listed per class below.
 
 starbase.client.connection.Connection
 -----------------------------------------
-- version
 - cluster_version
 - cluster_status
+- drop_table
 - tables
 - table_exists
-- drop_table
+- version
 
 starbase.client.table.Table
 -----------------------------------------
+- add_columns
 - batch
 - create
 - drop
+- drop_columns
 - exists
+- insert
 - fetch
 - fetch_all_rows
-- insert
 - regions
 - remove
 - schema
@@ -376,9 +378,9 @@ starbase.client.table.Table
 
 starbase.client.table.Batch
 -----------------------------------------
+- commit
 - insert
 - update
-- commit
 
 starbase.client.transport.HttpRequest
 -----------------------------------------
