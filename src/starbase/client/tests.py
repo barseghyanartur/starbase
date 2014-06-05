@@ -1072,7 +1072,7 @@ class StarbaseClient02TableTest(unittest.TestCase):
         self.assertEqual(write_res, 200)
 
         # Get file from HBase and compare source
-        read_res = self.table.fetch(row_key, COLUMN_MESSAGE, ['image'])
+        read_res = self.table.fetch(row_key, {COLUMN_MESSAGE: ['image']})
 
         self.assertEqual(read_res[COLUMN_MESSAGE]['image'], image)
 
