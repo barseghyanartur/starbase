@@ -1,6 +1,15 @@
 Release history
 =====================================
 
+0.3.1
+-------------------------------------
+2014-05-24
+
+- Added handling of the timestamps.
+- Minor fixes.
+- Softened the dependency requirements.
+- Tiny improvements in documentation.
+
 0.3
 -------------------------------------
 2014-03-10

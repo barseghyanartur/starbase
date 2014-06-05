@@ -237,6 +237,15 @@ class Table(object):
 
         url += self._build_url_parts(columns)
 
+        # Handling the timestamps
+        if timestamp:
+            if isinstance(timestamp, str):
+                timestamp = int(timestamp)
+            url += "/{timestamp},{timestamp_plus}/".format(
+                timestamp = str(timestamp),
+                timestamp_plus = str(timestamp + 1)
+                )
+
         # If should be versioned, adding additional URL parts.
         if number_of_versions is not None:
             assert isinstance(number_of_versions, int)
@@ -363,18 +372,20 @@ class Table(object):
         :return str:
         """
         # Base URL
-        url = ''
+        #url = ''
 
         if PY3:
             row_hash = base64.b64encode(row.encode('utf8')).decode('utf8')
         else:
             row_hash = base64.b64encode(row)
 
-        if 1 == len(columns):
-            cf = list(columns.keys())[0]
-            url = "{table_name}/{row}/{cf}".format(table_name=self.name, row=row_hash, cf=cf)
-        else:
-            url = "{table_name}/{row}".format(table_name=self.name, row=row_hash)
+        #if 1 == len(columns):
+        #    cf = list(columns.keys())[0]
+        #    url = "{table_name}/{row}/{cf}".format(table_name=self.name, row=row_hash, cf=cf)
+        #else:
+        #    url = "{table_name}/{row}".format(table_name=self.name, row=row_hash)
+
+        url = "{table_name}/{row}".format(table_name=self.name, row=row_hash)
 
         return url
     _build_post_url = _build_put_url

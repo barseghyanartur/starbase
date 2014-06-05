@@ -2,11 +2,11 @@ import os
 from setuptools import setup, find_packages
 
 try:
-  readme = open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()
+   readme = open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()
 except:
-  readme = ''
+   readme = ''
 
-version = '0.3'
+version = '0.3.1'
 
 setup(
     name = 'starbase',
@@ -37,8 +37,8 @@ setup(
     include_package_data = True,
     install_requires = [
         'six>=1.1.0',
-        'ordereddict==1.1',
+        'ordereddict>=1.1',
         'requests>=1.2.3',
-        'simple-timer==0.2',
+        'simple-timer>=0.2',
     ]
 )
