@@ -3,7 +3,7 @@ Release history
 
 0.3.1
 -------------------------------------
-2014-05-24
+2014-06-05
 
 - Added handling of the timestamps.
 - Minor fixes.
