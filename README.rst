@@ -17,9 +17,9 @@ better do so.
 Prerequisites
 =========================================
 You need to have Hadoop, HBase, Thrift and Stargate running. If you want to make it easy for yourself,
-read my instructions on installing Cloudera manager (free) on Ubuntu 12.04 LTS `here
-<http://barseghyanartur.blogspot.nl/2013/08/installing-cloudera-on-ubuntu-1204.html>`_ or
-`here <https://bitbucket.org/barseghyanartur/simple-cloudera-install>`_.
+read my instructions on installing Cloudera manager (free) on Ubuntu 12.04 LTS 
+`here <http://barseghyanartur.blogspot.nl/2013/08/installing-cloudera-on-ubuntu-1204.html>`_ or
+`there <https://bitbucket.org/barseghyanartur/simple-cloudera-install>`_.
 
 Once you have everything installed and running (by default Stargate runs on 127.0.0.1:8000), you should
 be able to run `src/starbase/client/test.py` without problems (UnitTest).
