@@ -1,8 +1,11 @@
 __title__ = 'starbase.defaults'
 __author__ = 'Artur Barseghyan'
-__copyright__ = 'Copyright (c) 2013 Artur Barseghyan'
+__copyright__ = 'Copyright (c) 2013-2014 Artur Barseghyan'
 __license__ = 'GPL 2.0/LGPL 2.1'
-__all__ = ('PERFECT_DICT', 'HOST', 'PORT', 'USER', 'PASSWORD', 'DEBUG',)
+__all__ = (
+    'PERFECT_DICT', 'HOST', 'PORT', 'USER', 'PASSWORD', 'MAX_RETRIES',
+    'RETRY_DELAY', 'DEBUG',
+)
 
 # If set to True, perfect dict will be enabled.
 PERFECT_DICT = True
@@ -18,5 +21,8 @@ USER = ''
 
 # Starbase password (in case of HTTP basic auth)
 PASSWORD = ''
+
+RETRIES = 0
+RETRY_DELAY = 2
 
 DEBUG = False

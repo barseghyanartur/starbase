@@ -17,9 +17,9 @@ better do so.
 Prerequisites
 =========================================
 You need to have Hadoop, HBase, Thrift and Stargate running. If you want to make it easy for yourself,
-read my instructions on installing Cloudera manager (free) on Ubuntu 12.04 LTS `here
-<http://barseghyanartur.blogspot.nl/2013/08/installing-cloudera-on-ubuntu-1204.html>`_ or
-`here <https://bitbucket.org/barseghyanartur/simple-cloudera-install>`_.
+read my instructions on installing Cloudera manager (free) on Ubuntu 12.04 LTS 
+`here <http://barseghyanartur.blogspot.nl/2013/08/installing-cloudera-on-ubuntu-1204.html>`_ or
+`there <https://bitbucket.org/barseghyanartur/simple-cloudera-install>`_.
 
 Once you have everything installed and running (by default Stargate runs on 127.0.0.1:8000), you should
 be able to run `src/starbase/client/test.py` without problems (UnitTest).
@@ -630,6 +630,25 @@ Print table metadata
 .. code-block:: python
 
     print table.regions()
+
+Failed requests
+=========================================
+By default, number of retries for a failed request is equal to zero. 
+That means, the request isn't being replayed. It's possible to relay a
+failed request, though (for instance, in case of timeouts, etc).
+
+In order to do that, two additional arguments of the
+``starbase.client.connection.Connection`` have been introduced:
+
+- retries (int)
+- retry_delay (int)
+
+.. code-block:: python
+
+    c = Connection(
+        retries = 3, # Retry 3 times
+        retry_delay = 5 # Wait for 5 seconds between retries
+        )
 
 License
 =========================================

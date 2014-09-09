@@ -1,5 +1,12 @@
 Release history
 =====================================
+0.3.2
+-------------------------------------
+2014-06-07
+
+- Make it possible to retry failed request given number of times
+  with given delay.
+- Minor fixes.
 
 0.3.1
 -------------------------------------

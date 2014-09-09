@@ -6,8 +6,12 @@ __all__ = ('Connection',)
 
 from starbase.translations import _
 from starbase.exceptions import ImproperlyConfigured, DoesNotExist
-from starbase.content_types import CONTENT_TYPES_DICT, CONTENT_TYPES, DEFAULT_CONTENT_TYPE
-from starbase.defaults import HOST, PORT, USER, PASSWORD, PERFECT_DICT
+from starbase.content_types import (
+    CONTENT_TYPES_DICT, CONTENT_TYPES, DEFAULT_CONTENT_TYPE
+)
+from starbase.defaults import (
+    HOST, PORT, USER, PASSWORD, PERFECT_DICT, RETRIES, RETRY_DELAY
+)
 from starbase.client.table import Table
 from starbase.client.transport import HttpRequest
 
@@ -25,9 +29,12 @@ class Connection(object):
         Stargate. Possible options are: json.
     :param bool perfect_dict: Global setting. If set to True, generally data will be returned as
         perfect dict.
+    :param int retries: Number of times to retry a failed request.
+    :param int retry_delay: Delay between retrying a failed request.
     """
     def __init__(self, host=HOST, port=PORT, user=USER, password=PASSWORD, secure=False, \
-                 content_type=DEFAULT_CONTENT_TYPE, perfect_dict=PERFECT_DICT):
+                 content_type=DEFAULT_CONTENT_TYPE, perfect_dict=PERFECT_DICT,
+                 retries=RETRIES, retry_delay=RETRY_DELAY):
         """
         Creates a new connection instance.
 
@@ -49,6 +56,8 @@ class Connection(object):
         self.secure = secure
         self.content_type = CONTENT_TYPES_DICT[content_type]
         self.perfect_dict = perfect_dict
+        self.retries = retries
+        self.retry_delay = retry_delay
         self.__connect()
 
     def __repr__(self):

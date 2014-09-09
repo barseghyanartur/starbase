@@ -143,7 +143,8 @@ class StarbaseClient01ConnectionTest(unittest.TestCase):
         @print_info
         def test_04_drop_table_schema(self):
             """
-            Delete table schema. Deleting the table if it exists. After that checking if table still exists.
+            Delete table schema. Deleting the table if it exists. After that
+            checking if table still exists.
             """
             # First testing for non-existent table
             non_existent_res = self.connection.table('non-existent-table').drop()

@@ -22,8 +22,17 @@ sys.path.insert(0, os.path.abspath('../src'))
 try:
     import starbase
     version = starbase.__version__
+
+    # General information about the project.
+    copyright = starbase.__copyright__
+    project = starbase.__title__
+    
 except Exception as e:
     version = '0.1'
+
+    # General information about the project.
+    copyright = u'2013-2014, Artur Barseghyan <artur.barseghyan@gmail.com>'
+    project = u'starbase'
 
 # -- General configuration -----------------------------------------------------
 
@@ -45,10 +54,6 @@ source_suffix = '.rst'
 
 # The master toctree document.
 master_doc = 'index'
-
-# General information about the project.
-project = u'starbase'
-copyright = u'2013, Artur Barseghyan <artur.barseghyan@gmail.com>'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

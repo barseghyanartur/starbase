@@ -1,12 +1,22 @@
-json_decoder Package
-=======================
+starbase.json_decoder package
+=============================
 
-:mod:`json_decoder` Package
-------------------------------
+Submodules
+----------
 
-.. automodule:: starbase.json_decoder
+starbase.json_decoder.tests module
+----------------------------------
+
+.. automodule:: starbase.json_decoder.tests
     :members:
     :undoc-members:
     :show-inheritance:
 
 
+Module contents
+---------------
+
+.. automodule:: starbase.json_decoder
+    :members:
+    :undoc-members:
+    :show-inheritance:

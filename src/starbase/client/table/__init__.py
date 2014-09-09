@@ -5,12 +5,14 @@ __license__ = 'GPL 2.0/LGPL 2.1'
 __all__ = ('Table',)
 
 import base64
-import json
+
+import logging
 
 from six import string_types, PY3
 
 from requests.models import HTTPError
 
+from starbase.translations import _
 from starbase.exceptions import InvalidArguments, ParseError, DoesNotExist, IntegrityError
 from starbase.content_types import DEFAULT_CONTENT_TYPE
 from starbase.defaults import PERFECT_DICT
@@ -19,6 +21,8 @@ from starbase.client.transport.methods import GET, PUT, POST, DELETE
 from starbase.client.table.scanner import Scanner
 from starbase.client.table.batch import Batch
 from starbase.client.helpers import build_json_data
+
+logger = logging.getLogger(__name__)
 
 class Table(object):
     """
@@ -127,7 +131,18 @@ class Table(object):
                                 d_val = d_val.decode('utf8')
 
                         if d_key in extracted_cell_data:
-                            extracted_cell_data[d_key].update(d_val)
+                            overlap = set(extracted_cell_data[d_key].keys()) & set(d_val.keys())
+                            if overlap:
+                                if 1 == len(overlap):
+                                    plural = ''
+                                    keys = overlap.pop()
+                                else:
+                                    plural = 's'
+                                    keys = '[{}]'.format(','.join(list(overlap)))
+                                logger.error(_("Was just about to lose overlapping data "
+                                               "for key{0} {1}:{2}").format(plural, d_key, keys))
+                            else:
+                                extracted_cell_data[d_key].update(d_val)
                         else:
                             extracted_cell_data[d_key] = d_val
             else:
@@ -269,10 +284,10 @@ class Table(object):
                 if isinstance(res, (list, tuple)) and 1 == len(res):
                     return res[0]
                 if not fail_silently:
-                    raise ParseError("No usable data found in HTTP response.")
+                    raise ParseError(_("No usable data found in HTTP response."))
             except Exception as e:
                 if not fail_silently:
-                    raise ParseError("Failed to parse the HTTP response. Error details: {0}".format(str(e)))
+                    raise ParseError(_("Failed to parse the HTTP response. Error details: {0}").format(str(e)))
 
     def fetch(self, row, columns=None, timestamp=None, number_of_versions=None, raw=False, perfect_dict=None, \
               fail_silently=True):
