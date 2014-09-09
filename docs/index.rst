@@ -634,8 +634,8 @@ Print table metadata
 Failed requests
 =========================================
 By default, number of retries for a failed request is equal to zero. 
-That means, the request isn't being replayed. It's possible to relay a
-failed request, though (for instance, in case of timeouts, etc).
+That means, the request isn't being repeated if failed. It's possible
+to retry a failed request (for instance, in case of timeouts, etc).
 
 In order to do that, two additional arguments of the
 ``starbase.client.connection.Connection`` have been introduced:
@@ -649,6 +649,12 @@ In order to do that, two additional arguments of the
         retries = 3, # Retry 3 times
         retry_delay = 5 # Wait for 5 seconds between retries
         )
+
+Beware! Number of retries can cause performance issues (lower
+responsiveness) of your application. At the moment, failed requests,
+such as deletion of non-existing column, row or a table, are handled
+in the same way and would all cause a retry. This likely will change
+in future (smarter detection of failures worth to retry a request).
 
 License
 =========================================
