@@ -10,7 +10,7 @@ __license__ = 'GPL 2.0/LGPL 2.1'
 __all__ = ('json_decode',)
 
 from six import PY3
-from six import string_types
+from six import string_types, integer_types
 import base64
 
 DEBUG = False
@@ -119,8 +119,11 @@ def json_decode(json_data, keys_to_bypass_decoding=['timestamp'], keys_to_skip=[
     # if list, tuple or set is given, iterate through the list and recursively call `json_decode` on each child item.
     for key, value in json_data.items():
         if key not in keys_to_skip:
-            # Making sure nothing breaks if we get integers or floats.
-            if isinstance(value, (int, float)):
+            # Making sure nothing breaks if we get integers, longs or floats.
+            number_types = list(integer_types)
+            number_types.append(float)
+            number_types = tuple(number_types)
+            if isinstance(value, number_types):
                 value = str(value)
                 # When decoding (really decoding and not encoding) we sometimes deal with integers or floats in the
                 # JSON given. In order to have those values encoded too, we encode them to strings, but then also

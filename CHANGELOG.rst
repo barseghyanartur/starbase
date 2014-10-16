@@ -1,5 +1,11 @@
 Release history
 =====================================
+0.3.3
+-------------------------------------
+2014-10-16
+
+- Minor fixes in JSON decoder sub package (allow long type to be used) for keys.
+
 0.3.2
 -------------------------------------
 2014-09-10
