@@ -8,6 +8,7 @@ Subpackages
 
     starbase.client
     starbase.json_decoder
+    starbase.server
 
 Submodules
 ----------
