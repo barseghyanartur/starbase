@@ -21,6 +21,7 @@ class Connection(object):
 
     :param str host: Stargate host.
     :param int port: Stargate port.
+	:param str url: Stargate endpoint URL. If set, overrides host and port settings.
     :param str user: Stargate user. Use this if your stargate is protected with HTTP basic
         auth (to be used in combination with `password` argument).
     :param str password: Stargate password (see comment to `user`).
@@ -32,7 +33,7 @@ class Connection(object):
     :param int retries: Number of times to retry a failed request.
     :param int retry_delay: Delay between retrying a failed request.
     """
-    def __init__(self, host=HOST, port=PORT, user=USER, password=PASSWORD, secure=False, \
+    def __init__(self, host=HOST, port=PORT, url=None, user=USER, password=PASSWORD, secure=False, \
                  content_type=DEFAULT_CONTENT_TYPE, perfect_dict=PERFECT_DICT,
                  retries=RETRIES, retry_delay=RETRY_DELAY):
         """
@@ -58,18 +59,21 @@ class Connection(object):
         self.perfect_dict = perfect_dict
         self.retries = retries
         self.retry_delay = retry_delay
-        self.__connect()
+        self.__connect(url)
 
     def __repr__(self):
         return "<starbase.client.connection.Connection ({0}:{1})>".format(self.host, self.port)
 
-    def __connect(self):
-        data = {
-            'secure': 's' if self.secure else '',
-            'host': self.host,
-            'port': self.port,
-        }
-        self.base_url = 'http{secure}://{host}:{port}/'.format(**data)
+    def __connect(self,url):
+        if url:
+            self.base_url = url + ('/' if url[-1]!='/' else '')
+        else:
+            data = {
+                'secure': 's' if self.secure else '',
+                'host': self.host,
+                'port': self.port,
+            }
+            self.base_url = 'http{secure}://{host}:{port}/'.format(**data)
 
     @property
     def version(self, fail_silently=True):
