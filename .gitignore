@@ -11,7 +11,7 @@ example/
 example/db/
 example/tmp/
 builddocs/
-build_docs.sh
+scripts/build_docs.sh
 builddocs.zip
 build/
 dist/
@@ -28,11 +28,11 @@ file.jpg
 src/starbase/client/__init__.rst
 hadoop/
 conf.py.dist
-run_dummy_server.sh
-source_install.sh
-speed_test.sh
+scripts/run_dummy_server.sh
+scripts/source_install.sh
+scripts/speed_test.sh
 todos.rst
-build_docs.sh
-rebuild_docs.sh
+scripts/build_docs.sh
+scripts/rebuild_docs.sh
 README_old.rst
 starbase_guest_article_for_cloudera*

@@ -1,9 +1,3 @@
-__title__ = 'starbase.client.table.__init__'
-__author__ = 'Artur Barseghyan'
-__copyright__ = 'Copyright (c) 2013 Artur Barseghyan'
-__license__ = 'GPL 2.0/LGPL 2.1'
-__all__ = ('Table',)
-
 import base64
 
 import logging
@@ -24,9 +18,15 @@ from starbase.client.helpers import build_json_data
 
 logger = logging.getLogger(__name__)
 
+__title__ = 'starbase.client.table.__init__'
+__author__ = 'Artur Barseghyan'
+__copyright__ = '2013-2016 Artur Barseghyan'
+__license__ = 'GPL 2.0/LGPL 2.1'
+__all__ = ('Table',)
+
+
 class Table(object):
-    """
-    For HBase table operations.
+    """For HBase table operations.
 
     :param stargate.base.Connection connection: Connection instance.
     :param str name: Table name.
@@ -34,8 +34,7 @@ class Table(object):
     FALSE_ROW_KEY = 'false-row-key'
 
     def __init__(self, connection, name):
-        """
-        Creates a new table instance.
+        """Creates a new table instance.
 
         See docs above.
         """
@@ -44,16 +43,22 @@ class Table(object):
         self.enable_if_exists_checks()
 
     def __repr__(self):
-        return "<starbase.client.table.Table ({0})> on {1}".format(self.name, self.connection)
+        """Repr."""
+        return "<starbase.client.table.Table " \
+               "({0})> on {1}".format(self.name, self.connection)
 
     @staticmethod
-    def _extract_usable_data(data, with_row_id=False, perfect_dict=PERFECT_DICT):
-        """
-        Extracts usable data from source given. The opposite to ``_build_table_data``.
+    def _extract_usable_data(data, with_row_id=False,
+                             perfect_dict=PERFECT_DICT):
+        """Extract usable data from source given.
 
-        :param dict data: Source. For examples see the tests (``test_16a_test_extract_usable_data_as_perfect_dict``).
-        :param bool with_row_id: If set to True, row is is aslso returned.
-        :param bool perfect_dict: If set to True, returns a perfect dict. If not given, global setting is used.
+        The opposite to ``_build_table_data``.
+
+        :param dict data: Source. For examples see the
+            tests (``test_16a_test_extract_usable_data_as_perfect_dict``).
+        :param bool with_row_id: If set to True, row is is also returned.
+        :param bool perfect_dict: If set to True, returns a perfect dict.
+            If not given, global setting is used.
 
         :return list|dict: Extracted usable data.
         """
@@ -64,7 +69,8 @@ class Table(object):
 
         # Single row data
         if isinstance(row_data, dict):
-            return Table._extract_row_data(row_data, perfect_dict=perfect_dict, with_row_id=with_row_id)
+            return Table._extract_row_data(row_data, perfect_dict=perfect_dict,
+                                           with_row_id=with_row_id)
 
         # Multiple row data
         else:
@@ -75,11 +81,14 @@ class Table(object):
 
     @staticmethod
     def _extract_column_data(column_data, perfect_dict=PERFECT_DICT):
-        """
-        Extracts column data. See doc string of the ``extract_cell_data`` for the data structure types.
+        """Extract column data.
+
+        See doc string of the ``extract_cell_data`` for the data structure
+        types.
 
         :param dict column_data:
-        :param bool perfect_dict: If set to True, returns a perfect dict. If not given, global setting is used.
+        :param bool perfect_dict: If set to True, returns a perfect dict. If
+            not given, global setting is used.
         :return dict:
         """
         assert 'column' in column_data
@@ -102,13 +111,13 @@ class Table(object):
 
     @staticmethod
     def _extract_cell_data(cell_data, perfect_dict=PERFECT_DICT):
-        """
-        Extracts the cell data.
+        """Extract the cell data.
 
         :param list|dict cell_data:
-        :param bool perfect_dict: If set to True, a perfect dictionary is returned (see data structure #2 and #4).
-            Otherwise, ordinary structure is returned (see data structure #1 and #3). If not given, global setting
-            is used.
+        :param bool perfect_dict: If set to True, a perfect dictionary is
+            returned (see data structure #2 and #4). Otherwise, ordinary
+            structure is returned (see data structure #1 and #3). If not given,
+            global setting is used.
         :return list|dict:
         """
         assert isinstance(cell_data, (list, dict))
@@ -117,21 +126,27 @@ class Table(object):
 
         # Single column
         if isinstance(cell_data, dict):
-            extracted_cell_data = Table._extract_column_data(cell_data, perfect_dict=perfect_dict)
+            extracted_cell_data = Table._extract_column_data(
+                cell_data,
+                perfect_dict=perfect_dict
+            )
 
         # Multiple column
         else:
             if perfect_dict:
                 extracted_cell_data = {}
                 for column_data in cell_data:
-                    d = Table._extract_column_data(column_data, perfect_dict=perfect_dict)
+                    d = Table._extract_column_data(column_data,
+                                                   perfect_dict=perfect_dict)
                     for d_key, d_val in d.items():
                         if PY3:
                             if isinstance(d_val, bytes):
                                 d_val = d_val.decode('utf8')
 
                         if d_key in extracted_cell_data:
-                            overlap = set(extracted_cell_data[d_key].keys()) & set(d_val.keys())
+                            overlap = set(
+                                extracted_cell_data[d_key].keys()
+                            ) & set(d_val.keys())
                             if overlap:
                                 if 1 == len(overlap):
                                     plural = ''
@@ -139,8 +154,11 @@ class Table(object):
                                 else:
                                     plural = 's'
                                     keys = '[{}]'.format(','.join(list(overlap)))
-                                logger.error(_("Was just about to lose overlapping data "
-                                               "for key{0} {1}:{2}").format(plural, d_key, keys))
+                                logger.error(
+                                    _("Was just about to lose overlapping "
+                                      "data for key{0} {1}:{2}"
+                                      "").format(plural, d_key, keys)
+                                )
                             else:
                                 extracted_cell_data[d_key].update(d_val)
                         else:
@@ -148,32 +166,41 @@ class Table(object):
             else:
                 extracted_cell_data = {}
                 for column_data in cell_data:
-                    extracted_cell_data.update(Table._extract_column_data(column_data, perfect_dict=perfect_dict))
+                    extracted_cell_data.update(
+                        Table._extract_column_data(
+                            column_data, perfect_dict=perfect_dict
+                        )
+                    )
         return extracted_cell_data
 
     @staticmethod
-    def _extract_row_data(row_data, with_row_id=False, perfect_dict=PERFECT_DICT):
-        """
-        See doc string of the ``_extract_usable_data`` for complete data overview.
+    def _extract_row_data(row_data, with_row_id=False,
+                          perfect_dict=PERFECT_DICT):
+        """See doc string of the ``_extract_usable_data`` for complete data
+        overview.
 
         :param dict row_data:
-        :param bool perfect_dict:  If set to True, returns a perfect dict. If not given, global setting is used.
+        :param bool perfect_dict:  If set to True, returns a perfect dict. If
+            not given, global setting is used.
 
         :return dict:
         """
         assert 'Cell' in row_data
         assert 'key' in row_data
 
-        result = Table._extract_cell_data(row_data['Cell'], perfect_dict=perfect_dict)
+        result = Table._extract_cell_data(
+            row_data['Cell'],
+            perfect_dict=perfect_dict
+        )
         if with_row_id:
             return {row_data['key']: result}
 
         return result
 
     def _build_url_parts(self, columns):
-        """
-        Builds part of the URL based on the column family data. See ``get`` method for nice examples of the
-        ``columns`` values.
+        """Build part of the URL based on the column family data.
+
+        See ``get`` method for nice examples of the ``columns`` values.
 
         :param list|set|tuple|dict columns:
 
@@ -190,39 +217,57 @@ class Table(object):
             if isinstance(columns, dict):
                 for column, qualifiers in columns.items():
                     for qualifier in qualifiers:
-                        url_parts.append('{column}:{qualifier}'.format(column=column, qualifier=qualifier))
+                        url_parts.append(
+                            '{column}:{qualifier}'.format(
+                                column=column, qualifier=qualifier
+                            )
+                        )
 
         return ','.join(url_parts)
 
-    def _build_table_data(self, row, columns, timestamp=None, encode_content=False,
-                          content_type=DEFAULT_CONTENT_TYPE, with_row_declaration=True):
-        """
-        Builds table data based on row column family data. See ``get`` method for nice examples of the ``columns``
-        values.
+    def _build_table_data(self,
+                          row,
+                          columns,
+                          timestamp=None,
+                          encode_content=False,
+                          content_type=DEFAULT_CONTENT_TYPE,
+                          with_row_declaration=True):
+        """Build table data based on row column family data.
+
+        See ``get`` method for nice examples of the ``columns`` values.
 
         Most likely, this is only going to be used for post/put methods.
 
         :param str row: Example 'row1'.
-        :param dict columns: See data structure #1 and data structure #2 further for examples.
+        :param dict columns: See data structure #1 and data structure #2
+            further for examples.
         :param timestamp: Not yet used.
-        :param bool encode_content: If set to True, table data is encoded with base64.encodestring.
+        :param bool encode_content: If set to True, table data is encoded
+            with `base64.encodestring`.
         :param str content_type: Content type. Can be 'json'
-        :param bool with_row_declaration: If set to True, {"Row" : [table_data]} structure is returned. Otherwise
-            just table_data. False setting is used when preparing data for batch processing. Default value is True.
+        :param bool with_row_declaration: If set to True,
+            {"Row" : [table_data]} structure is returned. Otherwise just
+            `table_data`. False setting is used when preparing data for batch
+            processing. Default value is True.
 
         :return dict:
         """
-        return build_json_data(row, columns, timestamp=timestamp, encode_content=encode_content, \
+        return build_json_data(row, columns, timestamp=timestamp,
+                               encode_content=encode_content,
                                with_row_declaration=with_row_declaration)
 
-    def _get(self, row, columns=None, timestamp=None, decode_content=True, number_of_versions=None, raw=False, \
-             perfect_dict=None, fail_silently=True):
-        """
-        Retrieves one or more cells from a full row, or one or more specified columns in the row, with optional
-        filtering via timestamp, and an optional restriction on the maximum number of versions to return.
+    def _get(self, row, columns=None, timestamp=None, decode_content=True,
+             number_of_versions=None, raw=False,  perfect_dict=None,
+             fail_silently=True):
+        """Retrieve one or more cells from a full row.
 
-        The `raw` argument is dominant. If given, the raw response it returned. Otherwise, a nice response is
-        returned that does make sense. If `perfect_dict` set to True, then we return a nice dict, instead of a
+        Retrieve one or more cells from a full row or one or more specified
+        columns in the row, with optional filtering via timestamp, and an
+        optional restriction on the maximum number of versions to return.
+
+        The `raw` argument is dominant. If given, the raw response it returned.
+        Otherwise, a nice response is returned that does make sense.
+        If `perfect_dict` set to True, then we return a nice dict, instead of a
         horrible one.
 
         In result JSON, the value of the `$` field (key) is the cell data.
@@ -230,8 +275,10 @@ class Table(object):
         :param str row:
         :param list|set|tuple|dict columns:
         :param timestamp: Not yet used.
-        :param bool decode_content: If set to True, content is decoded using ``stargate.json_decoder.json_decode``.
-        :param int number_of_versions: If provided, multiple versions of the given record are returned.
+        :param bool decode_content: If set to True, content is decoded using
+            ``stargate.json_decoder.json_decode``.
+        :param int number_of_versions: If provided, multiple versions of the
+            given record are returned.
         :param bool perfect_dict:
         :param bool raw:
         :return dict:
@@ -280,31 +327,35 @@ class Table(object):
 
         if response_content:
             try:
-                res = Table._extract_usable_data(response_content, perfect_dict=perfect_dict, with_row_id=False)
+                res = Table._extract_usable_data(response_content,
+                                                 perfect_dict=perfect_dict,
+                                                 with_row_id=False)
                 if isinstance(res, (list, tuple)) and 1 == len(res):
                     return res[0]
                 if not fail_silently:
                     raise ParseError(_("No usable data found in HTTP response."))
             except Exception as e:
                 if not fail_silently:
-                    raise ParseError(_("Failed to parse the HTTP response. Error details: {0}").format(str(e)))
+                    raise ParseError(_("Failed to parse the HTTP response. "
+                                       "Error details: {0}").format(str(e)))
 
-    def fetch(self, row, columns=None, timestamp=None, number_of_versions=None, raw=False, perfect_dict=None, \
-              fail_silently=True):
-        """
-        Fetches a single row from table.
+    def fetch(self, row, columns=None, timestamp=None, number_of_versions=None,
+              raw=False, perfect_dict=None, fail_silently=True):
+        """Fetch a single row from table.
 
         :param str row:
         :param list|set|tuple|dict columns:
         :param timestamp: Not yet used.
-        :param int number_of_versions: If provided, multiple versions of the given record are returned.
+        :param int number_of_versions: If provided, multiple versions of the
+            given record are returned.
         :param bool perfect_dict:
         :param bool raw:
         :return dict:
 
         :example:
-        In the example below we first create a table named `table1` with columns `column1`, `column2` and
-        `column3`, then insert a row with `column1` and `column2` data, then update the same row with
+        In the example below we first create a table named `table1` with
+        columns `column1`, `column2` and `column3`, then insert a row with
+        `column1` and `column2` data, then update the same row with
         `column3` data and then fetch the data.
 
         >>> from starbase import Connection
@@ -322,8 +373,8 @@ class Table(object):
 
         >>> table.fetch('row1', ['column1', 'column3'])
 
-        Fetching the row `row1` with fields `gender` and `favourite_book` from `column3` and fild `age` of column
-        `column2`.
+        Fetching the row `row1` with fields `gender` and `favourite_book` from
+        `column3` and fild `age` of column `column2`.
 
         >>> table.fetch('row1', {'column3': ['gender', 'favourite_book'], 'column2': ['age']})
         """
@@ -331,16 +382,21 @@ class Table(object):
                          number_of_versions=number_of_versions, raw=False, \
                          perfect_dict=perfect_dict, fail_silently=fail_silently)
 
-    def fetch_all_rows(self, with_row_id=False, raw=False, perfect_dict=None, flat=False, filter_string=None, \
-                       scanner_config='', fail_silently=True):
-        """
-        Fetches all table rows.
+    def fetch_all_rows(self, with_row_id=False, raw=False, perfect_dict=None,
+                       flat=False, filter_string=None, scanner_config={},
+                       fail_silently=True):
+        """Fetch all table rows.
 
         :param bool with_row_id: If set to True, returned along with row id.
         :param bool raw: If set to True, raw response is returned.
-        :param bool perfect_dict: If set to True, a perfect dict struture is used for output data.
-        :param string filter_string: If set, applies the given filter string to the scanner.
-        :returns list:
+        :param bool perfect_dict: If set to True, a perfect dict structure is
+            used for output data.
+        :param bool flat:
+        :param string filter_string: If set, applies the given filter string
+            to the scanner.
+        :param dict scanner_config:
+        :param mixed flat_silently.
+        :return list:
 
         :example:
         >>> filter_string = '{"type": "RowFilter", "op": "EQUAL", "comparator": '
@@ -359,14 +415,19 @@ class Table(object):
             perfect_dict = self.connection.perfect_dict
 
         try:
-            scanner = self._scanner(filter_string=filter_string, data=scanner_config, fail_silently=fail_silently)
+            scanner = self._scanner(filter_string=filter_string,
+                                    data=scanner_config,
+                                    fail_silently=fail_silently)
         except HTTPError as e:
             if fail_silently:
                 return []
-            raise DoesNotExist(_("""Table "{0}" does not exist.""".format(self.name)))
+            raise DoesNotExist(_("""Table "{0}" does not exist."""
+                               "".format(self.name)))
 
         if scanner:
-            res = scanner.results(perfect_dict=perfect_dict, with_row_id=with_row_id, raw=raw)
+            res = scanner.results(perfect_dict=perfect_dict,
+                                  with_row_id=with_row_id,
+                                  raw=raw)
             scanner.delete ()
         else:
             if fail_silently:
