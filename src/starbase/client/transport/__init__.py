@@ -97,6 +97,7 @@ class HttpRequest(object):
         self.data = data
         self.decode_content = decode_content
         self.fail_silently = fail_silently
+        self.verify_ssl = connection.verify_ssl
         headers = {
             'Accept': str(self.__connection.content_type),
             'Content-type': str(self.__connection.content_type) + \
@@ -153,13 +154,13 @@ class HttpRequest(object):
         Moved to seperate function to aid mocking in tests
         """
         if GET == method:
-            return requests.get(**request_data)
+            return requests.get(**request_data, verify=self.verify_ssl)
         elif PUT == method:
-            return requests.put(**request_data)
+            return requests.put(**request_data, verify=self.verify_ssl)
         elif POST == method:
-            return requests.post(**request_data)
+            return requests.post(**request_data, verify=self.verify_ssl)
         elif DELETE == method:
-            return requests.delete(**request_data)
+            return requests.delete(**request_data, verify=self.verify_ssl)
 
     def get_response(self):
         """

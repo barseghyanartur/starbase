@@ -26,6 +26,7 @@ class Connection(object):
         auth (to be used in combination with `password` argument).
     :param str password: Stargate password (see comment to `user`).
     :param bool secure: If set to True, HTTPS is used; otherwise - HTTP. Default value is False.
+    :param bool verify_ssl: If set to False, HTTPS certs that are self signed will be accepted
     :param str content_type: Content type for data wrapping when communicating with the
         Stargate. Possible options are: json.
     :param bool perfect_dict: Global setting. If set to True, generally data will be returned as
@@ -34,7 +35,7 @@ class Connection(object):
     :param int retry_delay: Delay between retrying a failed request.
     """
     def __init__(self, host=HOST, port=PORT, url=None, user=USER, password=PASSWORD, secure=False, \
-                 content_type=DEFAULT_CONTENT_TYPE, perfect_dict=PERFECT_DICT,
+                 verify_ssl=True, content_type=DEFAULT_CONTENT_TYPE, perfect_dict=PERFECT_DICT,
                  retries=RETRIES, retry_delay=RETRY_DELAY):
         """
         Creates a new connection instance.
@@ -55,6 +56,7 @@ class Connection(object):
         self.user = user
         self.password = password
         self.secure = secure
+        self.verify_ssl = verify_ssl
         self.content_type = CONTENT_TYPES_DICT[content_type]
         self.perfect_dict = perfect_dict
         self.retries = retries
