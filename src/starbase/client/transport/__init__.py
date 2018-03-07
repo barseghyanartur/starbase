@@ -99,8 +99,8 @@ class HttpRequest(object):
         self.fail_silently = fail_silently
         self.verify_ssl = connection.verify_ssl
 
-        if not self.verify_ssl:
-            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        # if not self.verify_ssl:
+        #     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
         headers = {
             'Accept': str(self.__connection.content_type),
