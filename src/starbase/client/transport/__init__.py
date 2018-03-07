@@ -11,7 +11,8 @@ import time
 import requests
 from requests.auth import HTTPBasicAuth
 from requests.exceptions import RequestException
-import urllib3
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+
 from six import string_types
 
 from starbase.json_decoder import json_decode
@@ -99,8 +100,8 @@ class HttpRequest(object):
         self.fail_silently = fail_silently
         self.verify_ssl = connection.verify_ssl
 
-        # if not self.verify_ssl:
-        #     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        if not self.verify_ssl:
+             requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
         headers = {
             'Accept': str(self.__connection.content_type),
