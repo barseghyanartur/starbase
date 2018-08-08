@@ -1,9 +1,13 @@
-=========================================
+========
 starbase
-=========================================
+========
 HBase Stargate (REST API) client wrapper for Python.
 
 Read the official documentation of the `Stargate <http://wiki.apache.org/hadoop/Hbase/Stargate>`_.
+
+**Deprecation warning!**
+
+This package is no longer supported. Either maintain your own fork or switch to alternative.
 
 Description
 =========================================
